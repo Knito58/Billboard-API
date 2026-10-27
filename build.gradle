@@ -37,6 +37,14 @@ def relocatedCobalt = tasks.register('relocatedCobalt', com.github.jengelman.gra
 loom {
 	splitEnvironmentSourceSets()
 
+	// Own folder for the dev server, so client and server can run at the same time. The Build workflow
+	// accepts the EULA there and starts the server once to check that the mod loads.
+	runs {
+		server {
+			runDir "run-server"
+		}
+	}
+
 	mods {
 		"billboard_api" {
 			sourceSet sourceSets.main
