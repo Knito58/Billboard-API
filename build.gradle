@@ -88,6 +88,10 @@ java {
 	targetCompatibility = JavaVersion.VERSION_25
 }
 
+// Taken at configuration time, so the jar task below does not call the script's zipTree when it runs
+// (the configuration cache refuses that).
+def archiveOperations = project.services.get(ArchiveOperations)
+
 jar {
 	def projectName = project.name
 	inputs.property "projectName", projectName
@@ -95,7 +99,7 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_$projectName"}
 	}
-	from(relocatedCobalt.flatMap { it.archiveFile }.map { zipTree(it) })
+	from(relocatedCobalt.flatMap { it.archiveFile }.map { archiveOperations.zipTree(it) })
 	from("THIRD_PARTY_NOTICES.md")
 }
 
