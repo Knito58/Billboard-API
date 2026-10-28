@@ -23,5 +23,5 @@
   before go to the owner of the first box that reaches them.
 - `engine` still works for Script Box programs: the one Billboard Engine of the network.
 - Vanilla signs and hanging signs are Lua clients, `minecraft:sign`.
-- Data Pipe (`billboard_api:data_pipe`, 6 from copper ingot, redstone, copper ingot): joins Lua Boxes and Lua clients
+- Data Pipe (`billboard_api:data_pipe`, 8 from planks, paper, planks; cardboard look and sound like the Lua Box): joins Lua Boxes and Lua clients
   into one network. Sneak-click an arm with an empty hand to switch that side off. `network_max_pipes=512`.
