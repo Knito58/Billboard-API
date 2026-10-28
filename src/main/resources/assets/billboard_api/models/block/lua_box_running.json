@@ -1,0 +1,1 @@
+{"parent":"minecraft:block/cube_bottom_top","textures":{"side":"billboard_api:block/lua_box_side_running","top":"billboard_api:block/lua_box_top","bottom":"billboard_api:block/lua_box_bottom"}}

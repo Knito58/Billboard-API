@@ -1,0 +1,19 @@
+{
+	"block.billboard_api.lua_box": "Lua Box",
+	"message.billboard_api.no_lua_box": "No Lua Box at %s %s %s.",
+	"message.billboard_api.box_status": "Lua Box: %s",
+	"gui.billboard_api.box.restart": "Restart",
+	"gui.billboard_api.box.stop": "Stop",
+	"gui.billboard_api.box.remove": "Remove %s",
+	"gui.billboard_api.box.not_yours": "Only the owner or an op may change the files of this box.",
+	"gui.billboard_api.box.not_sent": "Not sent: %s",
+	"gui.billboard_api.box.ignored": "Ignored: %s",
+	"gui.billboard_api.box.sending": "Sending %s file(s)...",
+	"gui.billboard_api.box.files": "Files (main.lua and up to %s more)",
+	"gui.billboard_api.box.drop_hint": "Drop main.lua and its files here.",
+	"gui.billboard_api.box.output": "Output",
+	"gui.billboard_api.box.folder": "Folder",
+	"gui.billboard_api.box.folder_tooltip": "Opens this box's folder in your file manager. After changing the program there, press Restart.",
+	"gui.billboard_api.box.open_file": "Click to open with your system's program for it. After saving, press Restart.",
+	"gui.billboard_api.box.opened": "Opening %s..."
+}
