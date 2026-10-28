@@ -28,7 +28,7 @@ public class ModBlocks {
 	public static final Block DATA_PIPE = register(
 			"data_pipe",
 			DataPipeBlock::new,
-			BlockBehaviour.Properties.of().strength(0.5f).sound(SoundType.WOOL).noOcclusion()
+			BlockBehaviour.Properties.of().strength(0.5f).sound(SoundType.WOOD).noOcclusion()
 	);
 
 	private static Block register(String name, Function<BlockBehaviour.Properties, Block> blockFactory, BlockBehaviour.Properties properties) {
