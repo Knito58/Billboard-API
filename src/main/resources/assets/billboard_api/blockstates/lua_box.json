@@ -1,0 +1,1 @@
+{"variants":{"state=stopped":{"model":"billboard_api:block/lua_box"},"state=running":{"model":"billboard_api:block/lua_box_running"},"state=error":{"model":"billboard_api:block/lua_box_error"}}}

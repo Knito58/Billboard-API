@@ -3,15 +3,29 @@ package de.knito.billboard.api.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.minecraft.resources.Identifier;
+
 import net.fabricmc.api.ModInitializer;
 
-/** The library's server and common side. Blocks, pipes and the client registry come here step by step. */
+import de.knito.billboard.api.impl.net.ModNetworking;
+
+/** The library's server and common side: the Lua Box now; pipes and the client registry come next. */
 public class BillboardApiMod implements ModInitializer {
 	public static final String MOD_ID = "billboard_api";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	@Override
 	public void onInitialize() {
+		ApiConfig.load();
+		ModBlocks.initialize();
+		ModBlockEntities.initialize();
+		ModMenus.initialize();
+		ModNetworking.initialize();
+		LuaBoxCommand.initialize();
 		LOGGER.info("Billboard API loaded");
+	}
+
+	public static Identifier id(String path) {
+		return Identifier.fromNamespaceAndPath(MOD_ID, path);
 	}
 }
