@@ -10,3 +10,6 @@
 - Settings in `config/billboard_api.properties`; on the first start the Script Box limits are taken over from
   Billboard Engine's `billboard.properties`.
 - `/luabox <pos> restart|stop|status` for operators and command blocks.
+- Worlds from Billboard Engine 1.x: Script Boxes become Lua Boxes (block, item and block entity alias from
+  `billboard:script_box`). Each keeps its files, which move to `billboard_api/boxes/`, and its one program is
+  renamed to `main.lua`. Not while Billboard Engine 1.x itself is installed.
