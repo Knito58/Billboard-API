@@ -1,0 +1,34 @@
+{
+	"schemaVersion": 1,
+	"id": "billboard_api",
+	"version": "${version}",
+	"name": "Billboard API",
+	"description": "The Lua Box, its Lua runtime, and data pipes that connect machines of other mods to it as Lua peripherals.",
+	"authors": [
+		"Claude",
+		"Konitor"
+	],
+	"contact": {
+		"sources": "https://github.com/Knito58/Billboard-API"
+	},
+	"license": "MIT",
+	"icon": "assets/billboard_api/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"de.knito.billboard.api.impl.BillboardApiMod"
+		],
+		"client": [
+			"de.knito.billboard.api.client.BillboardApiClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"computercraft": "*"
+	}
+}

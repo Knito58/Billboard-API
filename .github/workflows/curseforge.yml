@@ -1,0 +1,84 @@
+# Uploads the jar of a GitHub release to CurseForge (project 1769807).
+# Runs after the Release workflow, or by hand on the Actions tab with a tag such as v0.1.0.
+# Needs the repository secret CURSEFORGE_TOKEN (an API token from CurseForge, account settings → API tokens).
+name: CurseForge upload
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to upload, e.g. v0.1.0"
+        required: true
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  PROJECT_ID: "1769807"
+  API: https://minecraft.curseforge.com/api
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - name: Upload to CurseForge
+        env:
+          TAG: ${{ inputs.tag }}
+          GH_TOKEN: ${{ github.token }}
+          CF_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$CF_TOKEN" ]; then
+            echo "::warning::No CURSEFORGE_TOKEN secret, skipping the CurseForge upload"
+            exit 0
+          fi
+          version=${TAG#v}
+          gh release download "$TAG" --pattern "billboard-api-$version.jar" --dir upload
+          jar="upload/billboard-api-$version.jar"
+
+          # Changelog: the first section of CHANGELOG.md, without its heading
+          awk 'NR > 1 && /^## / { exit } NR > 1' CHANGELOG.md > changelog.md
+
+          # CurseForge wants its own ids for game version, loader, Java and environment
+          curl -sSf -H "X-Api-Token: $CF_TOKEN" "$API/game/version-types" > types.json
+          curl -sSf -H "X-Api-Token: $CF_TOKEN" "$API/game/versions" > versions.json
+          ids=$(jq -c --slurpfile types types.json '
+            ($types[0] | map({(.id | tostring): .slug}) | add) as $slug
+            | map(select(
+                (.name == "26.3" and (($slug[.gameVersionTypeID | tostring] // "") | startswith("minecraft")))
+                or (.name == "Fabric" and $slug[.gameVersionTypeID | tostring] == "modloader")
+                or (.name == "Java 25" and $slug[.gameVersionTypeID | tostring] == "java")
+                or ((.name == "Client" or .name == "Server") and $slug[.gameVersionTypeID | tostring] == "environment")))
+            | map(.id)' versions.json)
+          echo "Game version ids: $ids"
+          if [ "$(echo "$ids" | jq length)" -ne 5 ]; then
+            echo "::error::Expected 5 ids (26.3, Fabric, Java 25, Client, Server), got $ids"
+            exit 1
+          fi
+
+          jq -n --rawfile changelog changelog.md --argjson ids "$ids" --arg name "Billboard API $version" '{
+            changelog: $changelog,
+            changelogType: "markdown",
+            displayName: $name,
+            gameVersions: $ids,
+            releaseType: "release",
+            relations: { projects: [
+              { slug: "fabric-api", type: "requiredDependency" },
+              { slug: "cc-tweaked", type: "optionalDependency" }
+            ] }
+          }' > metadata.json
+          cat metadata.json
+
+          curl -sSf -H "X-Api-Token: $CF_TOKEN" \
+            -F "metadata=<metadata.json;type=application/json" \
+            -F "file=@$jar" \
+            "$API/projects/$PROJECT_ID/upload-file"
+          echo
