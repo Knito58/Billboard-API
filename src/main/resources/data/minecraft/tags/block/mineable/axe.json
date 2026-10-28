@@ -1,5 +1,6 @@
 {
   "values": [
-    "billboard_api:lua_box"
+    "billboard_api:lua_box",
+    "billboard_api:data_pipe"
   ]
 }

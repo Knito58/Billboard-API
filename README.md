@@ -13,7 +13,7 @@ Work in progress; no release yet.
 
 A Lua Box reaches every Lua client that touches it, or touches a Data Pipe or another Lua Box joined to
 it. Pipes join by themselves; sneak-click an arm (or a side) with an empty hand to switch that side off,
-so two networks can run side by side. Craft 6 pipes from copper, redstone, copper in a row. By default a box drives only machines placed by its own owner; `network_owner_check=false` in
+so two networks can run side by side. Craft 8 cardboard pipes from planks, paper, planks in a row. By default a box drives only machines placed by its own owner; `network_owner_check=false` in
 `config/billboard_api.properties` lets any box drive any machine it reaches.
 
 ```lua
