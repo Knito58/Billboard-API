@@ -52,6 +52,7 @@ public class LuaBoxBlockEntity extends BlockEntity implements ExtendedMenuProvid
 	/** True once this load tried to start the program, so a broken program is not compiled every tick. */
 	private boolean started;
 	private final Deque<Line> lines = new ArrayDeque<>();
+	private final BoxNetwork network = new BoxNetwork(this);
 	/** Counts every change an open screen should see: output, state, files. */
 	private int version;
 
@@ -225,6 +226,11 @@ public class LuaBoxBlockEntity extends BlockEntity implements ExtendedMenuProvid
 
 	public UUID owner() {
 		return owner;
+	}
+
+	/** The clients this box reaches. */
+	BoxNetwork network() {
+		return network;
 	}
 
 	public int version() {

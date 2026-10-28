@@ -22,6 +22,9 @@
 			"de.knito.billboard.api.client.BillboardApiClient"
 		]
 	},
+	"mixins": [
+		"billboard_api.mixins.json"
+	],
 	"depends": {
 		"fabricloader": ">=0.19.5",
 		"minecraft": "~26.3",

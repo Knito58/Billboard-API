@@ -33,6 +33,9 @@ public final class ApiConfig {
 	private static int boxMaxFiles = 8;
 	private static int boxMaxFileKb = 2048;
 	private static List<String> boxFileTypes = types(DEFAULT_TYPES);
+	private static int networkMaxClients = 64;
+	private static int networkMaxBoxes = 8;
+	private static boolean networkOwnerCheck = true;
 
 	private ApiConfig() {
 	}
@@ -76,6 +79,19 @@ public final class ApiConfig {
 		return boxFileTypes;
 	}
 
+	public static int networkMaxClients() {
+		return networkMaxClients;
+	}
+
+	public static int networkMaxBoxes() {
+		return networkMaxBoxes;
+	}
+
+	/** Boxes drive only machines placed by the box's owner. */
+	public static boolean networkOwnerCheck() {
+		return networkOwnerCheck;
+	}
+
 	static void load() {
 		Path dir = FabricLoader.getInstance().getConfigDir();
 		Path file = dir.resolve(FILE);
@@ -102,8 +118,11 @@ public final class ApiConfig {
 		boxMaxFiles = read(properties, "box_max_files", boxMaxFiles, 0, 64);
 		boxMaxFileKb = read(properties, "box_max_file_kb", boxMaxFileKb, 1, LIMIT_FILE_KB);
 		boxFileTypes = types(properties.getProperty("box_file_types", String.join(",", boxFileTypes)));
+		networkMaxClients = read(properties, "network_max_clients", networkMaxClients, 1, 1024);
+		networkMaxBoxes = read(properties, "network_max_boxes", networkMaxBoxes, 1, 64);
+		networkOwnerCheck = readBoolean(properties, "network_owner_check", networkOwnerCheck);
 		// A file from an older version lacks the newer keys: write it again with the values just read.
-		if (fresh || !properties.containsKey("box_file_types")) {
+		if (fresh || !properties.containsKey("network_owner_check")) {
 			write(file);
 		}
 	}
@@ -179,8 +198,17 @@ public final class ApiConfig {
 						box_max_file_kb=%d
 						# File types a box may hold besides main.lua, separated by commas.
 						box_file_types=%s
+
+						# A network is every Lua Box and pipe connected to a box, and the machines touching them.
+						# Over a limit the whole network stops working, with an error that says why.
+						network_max_clients=%d
+						network_max_boxes=%d
+						# true: a box drives only machines placed by its own owner (machines from before get the
+						# owner of the first box that reaches them). false: any box drives any machine it reaches.
+						network_owner_check=%b
 						""".formatted(boxesEnabled, boxesOpsOnly, boxMillisPerTick, boxMaxSecondsWithoutSleep, boxTooBusySeconds,
-						LIMIT_FILE_KB, boxMaxLuaKb, boxMaxFiles, boxMaxFileKb, String.join(",", boxFileTypes)));
+						LIMIT_FILE_KB, boxMaxLuaKb, boxMaxFiles, boxMaxFileKb, String.join(",", boxFileTypes),
+						networkMaxClients, networkMaxBoxes, networkOwnerCheck));
 			}
 		} catch (IOException e) {
 			BillboardApiMod.LOGGER.warn("Could not write {}", file, e);

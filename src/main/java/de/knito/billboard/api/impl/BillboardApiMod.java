@@ -7,9 +7,11 @@ import net.minecraft.resources.Identifier;
 
 import net.fabricmc.api.ModInitializer;
 
+import de.knito.billboard.api.impl.clients.SignClient;
 import de.knito.billboard.api.impl.net.ModNetworking;
+import de.knito.billboard.api.impl.network.ClientData;
 
-/** The library's server and common side: the Lua Box now; pipes and the client registry come next. */
+/** The library's server and common side: the Lua Box and the network of Lua clients; pipes come next. */
 public class BillboardApiMod implements ModInitializer {
 	public static final String MOD_ID = "billboard_api";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
@@ -20,6 +22,8 @@ public class BillboardApiMod implements ModInitializer {
 		ModBlocks.initialize();
 		ModBlockEntities.initialize();
 		ScriptBoxAlias.initialize();
+		ClientData.initialize();
+		SignClient.initialize();
 		ModMenus.initialize();
 		ModNetworking.initialize();
 		LuaBoxCommand.initialize();
