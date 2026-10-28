@@ -1,5 +1,6 @@
 package de.knito.billboard.api.impl.box;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.BlockPos;
 
 import de.knito.billboard.api.LuaArgs;
+import de.knito.billboard.api.LuaCaller;
 import de.knito.billboard.api.LuaException;
 import de.knito.billboard.api.LuaMethod;
 import de.knito.billboard.api.LuaMethods;
@@ -48,6 +50,30 @@ final class NetworkLibrary {
 	private final List<Handle> handles = new ArrayList<>();
 	private final Map<Integer, CompletableFuture<?>> jobs = new HashMap<>();
 	private int nextJob = 1;
+	private boolean closed;
+	/** This run of the program, as clients see it. */
+	private final LuaCaller caller = new LuaCaller() {
+		@Override
+		public String describe() {
+			BlockPos pos = box.getBlockPos();
+			return "Lua Box at " + pos.getX() + " " + pos.getY() + " " + pos.getZ();
+		}
+
+		@Override
+		public boolean isActive() {
+			return !closed && !box.isRemoved();
+		}
+
+		@Override
+		public Path file(String name) {
+			return box.file(name);
+		}
+
+		@Override
+		public String toString() {
+			return describe();
+		}
+	};
 
 	NetworkLibrary(LuaBoxBlockEntity box) {
 		this.box = box;
@@ -67,6 +93,7 @@ final class NetworkLibrary {
 
 	/** Called when the program ends: waiting calls are dropped. */
 	void close() {
+		closed = true;
 		jobs.values().forEach(job -> job.cancel(false));
 		jobs.clear();
 	}
@@ -192,7 +219,7 @@ final class NetworkLibrary {
 			throw new LuaError("not a client handle", 0);
 		}
 		Network.Member member = resolve(handles.get(id - 1));
-		LuaArgs luaArgs = LuaValues.args(args, 3);
+		LuaArgs luaArgs = LuaValues.args(args, 3, caller);
 		switch (name) {
 			case "getName":
 				return done(member.name());

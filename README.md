@@ -56,4 +56,6 @@ final class TypewriterClient implements LuaClient {
 Methods run on the server thread inside the box's time slice, so take the order and do the work in your
 own tick. Arguments and results are plain Java values (`null`, `Boolean`, `Number`, `String`, `byte[]`,
 `List`, `Map`); an `Object[]` returns several values; a `CompletableFuture` makes the program wait until
-it is done. Throw `LuaException` for a Lua error. Only the package `de.knito.billboard.api` is API.
+it is done. Throw `LuaException` for a Lua error. `args.caller()` tells which program calls: stable for one run,
+`isActive()` false after it ends, and `file(name)` gives the box's files (for a machine that shows an
+image the program names). Only the package `de.knito.billboard.api` is API.

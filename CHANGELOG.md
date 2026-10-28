@@ -27,3 +27,5 @@
   into one network. Sneak-click an arm with an empty hand to switch that side off. `network_max_pipes=512`.
 - Box screen: a Network button swaps the file list for the machines the box reaches, with their type; click one to
   rename it. Machines of other owners are shown greyed out.
+- `LuaArgs.caller()`: the calling program (`LuaCaller`: `describe()`, `isActive()`, `file(name)`), so a machine can
+  let one program claim it, and show files of the calling box.

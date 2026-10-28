@@ -21,17 +21,24 @@ import org.jspecify.annotations.Nullable;
  */
 public final class LuaArgs {
 	private final List<@Nullable Object> values;
+	private final @Nullable LuaCaller caller;
 
 	/**
 	 * Mainly for the library and for tests. A top-level {@code byte[]} stands for a Lua string as it came, so
 	 * {@link #bytes} can give back binary data unchanged; {@link #get} and {@link #string} show it as UTF-8 text.
 	 */
-	public LuaArgs(List<?> values) {
+	public LuaArgs(List<?> values, @Nullable LuaCaller caller) {
 		this.values = Collections.unmodifiableList(new ArrayList<>(values));
+		this.caller = caller;
 	}
 
 	public static LuaArgs of(@Nullable Object... values) {
-		return new LuaArgs(Arrays.asList(values));
+		return new LuaArgs(Arrays.asList(values), null);
+	}
+
+	/** The program making this call; null only for arguments made by hand, such as in tests. */
+	public @Nullable LuaCaller caller() {
+		return caller;
 	}
 
 	/** Number of arguments, nils at the end included. */
