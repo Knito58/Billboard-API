@@ -14,8 +14,10 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -30,7 +32,8 @@ import de.knito.billboard.api.impl.net.BoxUploadPayload;
 /**
  * The Lua Box screen: its files, its output lines, Restart and Stop. Files are dropped onto it from the
  * file manager: the program main.lua and up to 8 more files. There is no editor; programs are written in any
- * text editor. In single player the folder button and a click on a file open them on this computer.
+ * text editor. In single player the folder button and a click on a file open them on this computer. The Network
+ * button swaps the file list for the machines the box reaches, where a click picks one to rename.
  */
 public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 	private static final int WIDTH = 256;
@@ -38,6 +41,8 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 	private static final int FILES_Y = 18;
 	private static final int FILE_ROW = 11;
 	private static final int MAX_FILE_ROWS = 7;
+	/** Machine rows in the Network view; the last row holds the name field. */
+	private static final int NETWORK_ROWS = 6;
 	private static final int OUTPUT_Y = 112;
 	private static final int OUTPUT_LINES = 7;
 	private static final int PANEL = 0xFFC6C6C6;
@@ -48,6 +53,11 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 	/** Our own message, such as an upload in progress or a file the client refused; cleared by the next state. */
 	private Component note = Component.empty();
 	private boolean noteError;
+	/** Shows the machines of the network instead of the files. */
+	private boolean showNetwork;
+	/** The machine picked for renaming, as a block position, or null. */
+	private Long selected;
+	private EditBox nameBox;
 
 	public LuaBoxScreen(LuaBoxMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title, WIDTH, HEIGHT);
@@ -64,6 +74,14 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 				.bounds(leftPos + 82, topPos + HEIGHT - 22, 70, 18).build());
 		restart.active = canControl;
 		stop.active = canControl;
+		addRenderableWidget(Button.builder(Component.translatable(showNetwork ? "gui.billboard_api.box.files_view" : "gui.billboard_api.box.network_view"), b -> {
+			showNetwork = !showNetwork;
+			rebuildWidgets();
+		}).bounds(leftPos + 60, topPos + 3, 58, 12).build());
+		if (showNetwork) {
+			initNetwork(canControl);
+			return;
+		}
 		Path folder = localFolder();
 		if (folder != null) {
 			Button open = addRenderableWidget(Button.builder(Component.translatable("gui.billboard_api.box.folder"), b -> Blaze3D.openPath(folder))
@@ -79,6 +97,64 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 				remove.setTooltip(Tooltip.create(Component.translatable("gui.billboard_api.box.remove", name)));
 			}
 		}
+	}
+
+	private void initNetwork(boolean canControl) {
+		String old = nameBox != null ? nameBox.getValue() : "";
+		nameBox = new EditBox(font, leftPos + 10, topPos + FILES_Y + 12 + NETWORK_ROWS * FILE_ROW, 168, 12, Component.translatable("gui.billboard_api.box.name"));
+		nameBox.setMaxLength(32);
+		nameBox.setValue(old);
+		Button rename = Button.builder(Component.translatable("gui.billboard_api.box.rename"), b -> rename())
+				.bounds(leftPos + WIDTH - 72, topPos + FILES_Y + 12 + NETWORK_ROWS * FILE_ROW, 62, 12).build();
+		LuaBoxStatePayload.Client client = selectedClient();
+		boolean editable = canControl && client != null && client.usable();
+		nameBox.visible = editable;
+		rename.visible = editable;
+		addRenderableWidget(nameBox);
+		addRenderableWidget(rename);
+	}
+
+	private LuaBoxStatePayload.Client selectedClient() {
+		if (state == null || selected == null) {
+			return null;
+		}
+		return state.network().clients().stream().filter(c -> c.pos() == selected).findFirst().orElse(null);
+	}
+
+	private void rename() {
+		LuaBoxStatePayload.Client client = selectedClient();
+		String name = nameBox.getValue().strip();
+		if (client != null && !name.isEmpty() && !name.equals(client.name())) {
+			ClientPlayNetworking.send(new LuaBoxActionPayload(LuaBoxActionPayload.Action.RENAME, name, client.pos()));
+		}
+	}
+
+	/** The machine row under the mouse, or -1. */
+	private int clientRowAt(double mouseX, double mouseY) {
+		if (state == null || mouseX < leftPos + 8 || mouseX >= leftPos + WIDTH - 8) {
+			return -1;
+		}
+		double y = mouseY - topPos - FILES_Y - 12;
+		int row = y < 0 ? -1 : (int) (y / FILE_ROW);
+		return row >= 0 && row < Math.min(state.network().clients().size(), NETWORK_ROWS) ? row : -1;
+	}
+
+	@Override
+	public boolean keyPressed(KeyEvent event) {
+		if (event.isEscape()) {
+			return super.keyPressed(event);
+		}
+		// While typing a name, letters like E must go into the box instead of closing the screen.
+		if (showNetwork && nameBox != null && nameBox.isFocused()) {
+			if (event.key() == InputConstants.KEY_RETURN) {
+				rename();
+				return true;
+			}
+			if (nameBox.keyPressed(event) || nameBox.canConsumeInput()) {
+				return true;
+			}
+		}
+		return super.keyPressed(event);
 	}
 
 	/** The box's folder if it is on this computer (single player), else null. */
@@ -102,6 +178,22 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 	/** A click on a file opens it with the program the system uses for it, such as the text editor for .lua. */
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		if (showNetwork) {
+			int clientRow = clientRowAt(event.x(), event.y());
+			if (clientRow >= 0 && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
+				LuaBoxStatePayload.Client client = state.network().clients().get(clientRow);
+				selected = client.pos();
+				if (nameBox != null) {
+					nameBox.setValue(client.name());
+				}
+				rebuildWidgets();
+				if (nameBox != null && nameBox.visible) {
+					setFocused(nameBox);
+				}
+				return true;
+			}
+			return super.mouseClicked(event, doubleClick);
+		}
 		Path folder = localFolder();
 		int row = fileRowAt(event.x(), event.y());
 		if (folder != null && row >= 0 && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
@@ -119,7 +211,8 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 	public void setState(LuaBoxStatePayload newState) {
 		boolean filesChanged = state == null || state.canEdit() != newState.canEdit() || state.canControl() != newState.canControl()
 				|| !state.files().equals(newState.files())
-				|| !state.folder().equals(newState.folder());
+				|| !state.folder().equals(newState.folder())
+				|| showNetwork && !state.network().clients().equals(newState.network().clients());
 		state = newState;
 		note = Component.empty();
 		if (filesChanged) {
@@ -224,6 +317,26 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 		};
 		graphics.text(font, state.status(), WIDTH - 8 - font.width(state.status()), 6, statusColor, false);
 
+		if (showNetwork) {
+			extractNetwork(graphics);
+		} else {
+			extractFiles(graphics);
+		}
+
+		graphics.text(font, Component.translatable("gui.billboard_api.box.output"), 8, OUTPUT_Y, LABEL, false);
+		List<LuaBoxStatePayload.Line> lines = state.lines();
+		int first = Math.max(0, lines.size() - OUTPUT_LINES);
+		for (int i = first; i < lines.size(); i++) {
+			LuaBoxStatePayload.Line line = lines.get(i);
+			graphics.text(font, fit(line.text(), WIDTH - 22), 11, OUTPUT_Y + 13 + (i - first) * 10, line.error() ? 0xFFFF6060 : 0xFFE0E0E0, false);
+		}
+
+		if (!note.getString().isEmpty()) {
+			graphics.text(font, fit(note.getString(), WIDTH - 164), 158, HEIGHT - 17, noteError ? 0xFFA02020 : 0xFF207020, false);
+		}
+	}
+
+	private void extractFiles(GuiGraphicsExtractor graphics) {
 		String filesLabel = Component.translatable("gui.billboard_api.box.files", state.limits().maxFiles()).getString();
 		graphics.text(font, fit(filesLabel, localFolder() != null ? WIDTH - 78 : WIDTH - 16), 8, FILES_Y, LABEL, false);
 		List<LuaBoxStatePayload.FileEntry> files = state.files();
@@ -239,17 +352,32 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 			graphics.text(font, fit(file.name(), 170), 12, rowY, main ? 0xFF1030C0 : program ? 0xFF2050A0 : LABEL, false);
 			graphics.text(font, size, WIDTH - 26 - font.width(size), rowY, 0xFF707070, false);
 		}
+	}
 
-		graphics.text(font, Component.translatable("gui.billboard_api.box.output"), 8, OUTPUT_Y, LABEL, false);
-		List<LuaBoxStatePayload.Line> lines = state.lines();
-		int first = Math.max(0, lines.size() - OUTPUT_LINES);
-		for (int i = first; i < lines.size(); i++) {
-			LuaBoxStatePayload.Line line = lines.get(i);
-			graphics.text(font, fit(line.text(), WIDTH - 22), 11, OUTPUT_Y + 13 + (i - first) * 10, line.error() ? 0xFFFF6060 : 0xFFE0E0E0, false);
+	private void extractNetwork(GuiGraphicsExtractor graphics) {
+		List<LuaBoxStatePayload.Client> clients = state.network().clients();
+		graphics.text(font, fit(Component.translatable("gui.billboard_api.box.network", clients.size()).getString(), WIDTH - 16), 8, FILES_Y, LABEL, false);
+		int rowY = FILES_Y + 13;
+		if (!state.network().problem().isEmpty()) {
+			graphics.text(font, fit(state.network().problem(), WIDTH - 24), 12, rowY, 0xFFA02020, false);
+			return;
 		}
-
-		if (!note.getString().isEmpty()) {
-			graphics.text(font, fit(note.getString(), WIDTH - 164), 158, HEIGHT - 17, noteError ? 0xFFA02020 : 0xFF207020, false);
+		if (clients.isEmpty()) {
+			graphics.text(font, fit(Component.translatable("gui.billboard_api.box.no_clients").getString(), WIDTH - 24), 12, rowY, 0xFF707070, false);
+		}
+		for (int i = 0; i < Math.min(clients.size(), NETWORK_ROWS); i++) {
+			LuaBoxStatePayload.Client client = clients.get(i);
+			int y = rowY + i * FILE_ROW;
+			boolean picked = selected != null && selected == client.pos();
+			int color = !client.usable() ? 0xFF909090 : picked ? 0xFF1030C0 : LABEL;
+			graphics.text(font, fit((picked ? "> " : "") + client.name(), 110), 12, y, color, false);
+			String type = client.usable() ? client.type() : Component.translatable("gui.billboard_api.box.other_owner", client.type()).getString();
+			String shown = fit(type, WIDTH - 140);
+			graphics.text(font, shown, WIDTH - 12 - font.width(shown), y, 0xFF707070, false);
+		}
+		if (clients.size() > NETWORK_ROWS) {
+			String more = "+" + (clients.size() - NETWORK_ROWS);
+			graphics.text(font, more, WIDTH - 12 - font.width(more), FILES_Y + 13 + NETWORK_ROWS * FILE_ROW, 0xFF707070, false);
 		}
 	}
 
@@ -276,7 +404,7 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 				}
 			}
 		}
-		if (localFolder() != null && fileRowAt(mouseX, mouseY) >= 0) {
+		if (!showNetwork && localFolder() != null && fileRowAt(mouseX, mouseY) >= 0) {
 			graphics.setTooltipForNextFrame(Component.translatable("gui.billboard_api.box.open_file"), mouseX, mouseY);
 		}
 		if (!note.getString().isEmpty() && mouseX >= leftPos + 158 && mouseY >= topPos + HEIGHT - 18 && mouseY < topPos + HEIGHT - 8) {

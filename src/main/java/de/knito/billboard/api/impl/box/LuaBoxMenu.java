@@ -27,6 +27,8 @@ public class LuaBoxMenu extends AbstractContainerMenu {
 	private final Player player;
 	/** The box's change counter at the last state sent to this player; -1 = nothing sent yet. */
 	private int sentVersion = -1;
+	private int sentNetwork = -1;
+	private int ticks;
 
 	/** Client side. */
 	public LuaBoxMenu(int containerId, Inventory inventory, OpenData openData) {
@@ -48,9 +50,15 @@ public class LuaBoxMenu extends AbstractContainerMenu {
 	@Override
 	public void broadcastChanges() {
 		super.broadcastChanges();
-		if (box != null && player instanceof ServerPlayer serverPlayer && box.version() != sentVersion) {
-			sentVersion = box.version();
+		if (box == null || !(player instanceof ServerPlayer serverPlayer)) {
+			return;
+		}
+		// The network is walked again only twice a second, for the Network view; programs walk it themselves.
+		boolean networkChanged = ticks++ % 10 == 0 && box.network().version() != sentNetwork;
+		if (box.version() != sentVersion || networkChanged) {
 			ServerPlayNetworking.send(serverPlayer, box.statePayload(serverPlayer));
+			sentVersion = box.version();
+			sentNetwork = box.network().version();
 		}
 	}
 

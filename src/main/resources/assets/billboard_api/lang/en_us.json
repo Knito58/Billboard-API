@@ -16,5 +16,12 @@
 	"gui.billboard_api.box.folder": "Folder",
 	"gui.billboard_api.box.folder_tooltip": "Opens this box's folder in your file manager. After changing the program there, press Restart.",
 	"gui.billboard_api.box.open_file": "Click to open with your system's program for it. After saving, press Restart.",
-	"gui.billboard_api.box.opened": "Opening %s..."
+	"gui.billboard_api.box.opened": "Opening %s...",
+	"gui.billboard_api.box.network_view": "Network",
+	"gui.billboard_api.box.files_view": "Files",
+	"gui.billboard_api.box.network": "Machines in reach: %s (click one to rename it)",
+	"gui.billboard_api.box.no_clients": "None. Put a machine against the box or a pipe.",
+	"gui.billboard_api.box.other_owner": "%s, not yours",
+	"gui.billboard_api.box.name": "New name",
+	"gui.billboard_api.box.rename": "Rename"
 }
