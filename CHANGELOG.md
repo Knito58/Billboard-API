@@ -13,3 +13,13 @@
 - Worlds from Billboard Engine 1.x: Script Boxes become Lua Boxes (block, item and block entity alias from
   `billboard:script_box`). Each keeps its files, which move to `billboard_api/boxes/`, and its one program is
   renamed to `main.lua`. Not while Billboard Engine 1.x itself is installed.
+- Lua clients: mods register machines with `BillboardApi.CLIENTS` (a Fabric block API lookup). Programs get
+  `network.list()`, `network.findByName(name)`, `network.find(type)`, `network.version()` and a handle per client
+  with `getName()`, `setName(name)`, `getType()` and the client's own functions. A client may answer later with a
+  `CompletableFuture`; the program waits for it.
+- A box reaches clients that touch it or touch a Lua Box next to it. Names are kept by the library on the machine;
+  a name clash gets the newcomer renamed, and every box tells. Settings `network_max_clients=64`,
+  `network_max_boxes=8`, `network_owner_check=true`: a box drives only machines its owner placed; machines from
+  before go to the owner of the first box that reaches them.
+- `engine` still works for Script Box programs: the one Billboard Engine of the network.
+- Vanilla signs and hanging signs are Lua clients, `minecraft:sign`.

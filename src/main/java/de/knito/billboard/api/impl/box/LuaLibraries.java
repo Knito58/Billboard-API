@@ -29,9 +29,9 @@ import de.knito.billboard.api.lua.cobalt.compiler.LoadState;
 import de.knito.billboard.api.lua.cobalt.function.RegisteredFunction;
 
 /**
- * What a Lua Box program sees besides standard Lua: sleep, print, require, the {@code files} table for the box's
+ * What a Lua Box program sees besides standard Lua: sleep, print, require, {@code network}, the {@code files} table for the box's
  * other files, and the parts of CC: Tweaked's {@code os} and {@code textutils} that clock scripts need.
- * No writing of files, no network, no peripherals yet.
+ * No writing of files. The {@code network} table and client handles come from {@link NetworkLibrary}.
  */
 final class LuaLibraries {
 	/** Written in Lua, because sleep() must be able to pause the program. */
@@ -84,6 +84,81 @@ final class LuaLibraries {
 				end
 			end
 
+			-- network: the Lua clients this box reaches. A handle's functions are called with a dot, tw.type("HI");
+			-- a colon works too. A client may answer later: then the program waits here, tick by tick.
+			local net, pack, unpack, ipairs, setmetatable = java.network, table.pack, table.unpack, ipairs, setmetatable
+			local call, poll = net.call, net.poll
+			local handles = {}
+			local function handleFor(info)
+				local id = info.id
+				local h = handles[id]
+				if not h then h = {}; handles[id] = h end
+				for _, name in ipairs(info.methods) do
+					if h[name] == nil then
+						h[name] = function(...)
+							local r
+							if select("#", ...) > 0 and (...) == h then
+								r = pack(pcall(call, id, name, select(2, ...)))
+							else
+								r = pack(pcall(call, id, name, ...))
+							end
+							if not r[1] then error(r[2], 2) end
+							if r[2] then return unpack(r, 3, r.n) end
+							local job = r[3]
+							while true do
+								yield(SLEEP, 0)
+								r = pack(pcall(poll, job))
+								if not r[1] then error(r[2], 2) end
+								if r[2] then return unpack(r, 3, r.n) end
+							end
+						end
+					end
+				end
+				return h
+			end
+
+			network = {}
+			function network.list()
+				local ok, names = pcall(net.list)
+				if not ok then error(names, 2) end
+				return names
+			end
+			function network.version()
+				return net.version()
+			end
+			function network.findByName(name)
+				if type(name) ~= "string" then
+					error("bad argument #1 to 'findByName' (string expected, got " .. type(name) .. ")", 2)
+				end
+				local ok, info = pcall(net.byName, name)
+				if not ok then error(info, 2) end
+				return info and handleFor(info) or nil
+			end
+			function network.find(kind)
+				if type(kind) ~= "string" then
+					error("bad argument #1 to 'find' (string expected, got " .. type(kind) .. ")", 2)
+				end
+				local ok, infos = pcall(net.byType, kind)
+				if not ok then error(infos, 2) end
+				local list = {}
+				for i, info in ipairs(infos) do list[i] = handleFor(info) end
+				return list
+			end
+
+			-- engine: kept for Script Box programs, the one Billboard Engine in the network.
+			local engineProxy
+			engineProxy = setmetatable({}, { __index = function(_, key)
+				return function(...)
+					local ok, info = pcall(net.engine)
+					if not ok then error(info, 2) end
+					local f = handleFor(info)[key]
+					if f == nil then error("the engine has no function " .. tostring(key), 2) end
+					if select("#", ...) > 0 and (...) == engineProxy then return f(select(2, ...)) end
+					return f(...)
+				end
+			end })
+			engine = engineProxy
+
 			textutils = {}
 			function textutils.formatTime(time, twentyFour)
 				if type(time) ~= "number" then
@@ -106,11 +181,13 @@ final class LuaLibraries {
 	private final LuaBoxBlockEntity box;
 	private final LuaState state;
 	private final long startTick;
+	private final NetworkLibrary network;
 
 	LuaLibraries(LuaBoxBlockEntity box, LuaState state) {
 		this.box = box;
 		this.state = state;
 		this.startTick = box.getLevel() == null ? 0 : box.getLevel().getGameTime();
+		this.network = new NetworkLibrary(box);
 	}
 
 	void install(LuaTable sleepToken) throws LuaError, CompileException {
@@ -126,12 +203,14 @@ final class LuaLibraries {
 				RegisteredFunction.of("listFiles", s -> listFiles()),
 				RegisteredFunction.of("readFile", (s, name) -> readFile(name.checkString())),
 		});
+		java.rawset("network", network.functions());
 		LuaValue prelude = LoadState.load(state, new ByteArrayInputStream(PRELUDE.getBytes(StandardCharsets.UTF_8)), "=prelude", globals);
 		LuaThread.runMain(state, prelude.checkFunction(), ValueFactory.varargsOf(java, sleepToken));
 	}
 
-	/** Called when the program ends. Nothing to free yet; peripherals will let go of the box here. */
+	/** Called when the program ends: calls still waiting for a client are dropped. */
 	void close() {
+		network.close();
 	}
 
 	// ---- files and modules ----

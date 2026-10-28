@@ -8,3 +8,51 @@ Used by [Billboard Engine](https://github.com/Knito58/billboard) and, optionally
 [Typestones](https://github.com/Knito58/Typestones).
 
 Work in progress; no release yet.
+
+## For Lua programs
+
+A Lua Box reaches every Lua client that touches it, or touches another Lua Box touching it (pipes come
+next). By default a box drives only machines placed by its own owner; `network_owner_check=false` in
+`config/billboard_api.properties` lets any box drive any machine it reaches.
+
+```lua
+print(table.concat(network.list(), ", "))    -- sign_1, typewriter_1
+local sign = network.findByName("sign_1")    -- nil if there is none
+sign.setName("door_sign")                     -- true, or nil and the reason
+sign.setLine(1, "Welcome")                    -- tw:type("HI") works too
+for _, s in ipairs(network.find("sign")) do s.clear() end
+local v = network.version()                   -- grows on every change, poll it
+```
+
+Every client has `getName()`, `setName(name)` and `getType()`. A new client gets the name
+`<type>_<n>`, the lowest free number. Names are 1 to 32 letters, digits, `_` or `-`, compared without
+case. When two networks join and a name exists twice, the newcomer is renamed and every box says so in
+red. A handle to a machine that was broken or cut off raises `client "sign_1" is not reachable` and
+works again when the machine is back. `engine` is still there for Script Box programs: the one Billboard
+Engine of the network.
+
+Vanilla signs and hanging signs are clients (`minecraft:sign`): `getLines(back)`, `getLine(n, back)`,
+`setLine(n, text, back)`, `setLines({...}, back)`, `clear(back)`; `back` is optional, default front.
+
+## For mod authors
+
+Depend on `billboard_api` and register your block entity type once:
+
+```java
+BillboardApi.CLIENTS.registerForBlockEntity((typewriter, side) -> new TypewriterClient(typewriter), TYPEWRITER);
+
+final class TypewriterClient implements LuaClient {
+    private final TypewriterBlockEntity typewriter;
+    TypewriterClient(TypewriterBlockEntity typewriter) { this.typewriter = typewriter; }
+    public String type() { return "typestones:typewriter"; }
+    public void methods(LuaMethods m) {
+        m.add("getStatus", args -> typewriter.status().name().toLowerCase())
+         .add("type", args -> { typewriter.type(args.string(1), args.optInteger(2, 1)); return null; });
+    }
+}
+```
+
+Methods run on the server thread inside the box's time slice, so take the order and do the work in your
+own tick. Arguments and results are plain Java values (`null`, `Boolean`, `Number`, `String`, `byte[]`,
+`List`, `Map`); an `Object[]` returns several values; a `CompletableFuture` makes the program wait until
+it is done. Throw `LuaException` for a Lua error. Only the package `de.knito.billboard.api` is API.
