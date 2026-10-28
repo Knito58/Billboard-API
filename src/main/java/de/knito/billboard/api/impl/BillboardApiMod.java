@@ -19,6 +19,7 @@ public class BillboardApiMod implements ModInitializer {
 		ApiConfig.load();
 		ModBlocks.initialize();
 		ModBlockEntities.initialize();
+		ScriptBoxAlias.initialize();
 		ModMenus.initialize();
 		ModNetworking.initialize();
 		LuaBoxCommand.initialize();

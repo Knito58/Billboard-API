@@ -33,15 +33,46 @@ public final class BoxStorage {
 		return server.getWorldPath(LevelResource.ROOT).resolve("billboard_api").resolve("boxes").toAbsolutePath().normalize();
 	}
 
-	/** The folder of a box id, or null for an id that is not ours (so a crafted id can never point elsewhere). */
+	/** Where Billboard Engine 1.x kept the files of its Script Boxes. */
+	static Path oldRoot(MinecraftServer server) {
+		return server.getWorldPath(LevelResource.ROOT).resolve("billboard").resolve("scripts").toAbsolutePath().normalize();
+	}
+
+	/**
+	 * The folder of a box id, or null for an id that is not ours (so a crafted id can never point elsewhere).
+	 * A Script Box of Billboard Engine 1.x keeps its id when it becomes a Lua Box; its old folder moves here then.
+	 */
 	public static Path folder(MinecraftServer server, String id) {
-		return id != null && ID.matcher(id).matches() ? root(server).resolve(id) : null;
+		if (id == null || !ID.matcher(id).matches()) {
+			return null;
+		}
+		Path folder = root(server).resolve(id);
+		Path old = oldRoot(server).resolve(id);
+		if (!Files.exists(folder) && Files.isDirectory(old)) {
+			moveOld(old, folder);
+		}
+		return folder;
+	}
+
+	/** Moves a Script Box folder over and names its one program main.lua, the name a Lua Box runs. */
+	private static void moveOld(Path old, Path folder) {
+		try {
+			Files.createDirectories(folder.getParent());
+			Files.move(old, folder);
+			List<Path> programs = files(folder).stream().filter(p -> isLua(p.getFileName().toString())).toList();
+			if (programs.size() == 1 && !isMain(programs.getFirst().getFileName().toString())) {
+				Files.move(programs.getFirst(), folder.resolve(MAIN));
+			}
+			BillboardApiMod.LOGGER.info("Moved Script Box files {} to {}", old, folder);
+		} catch (IOException e) {
+			BillboardApiMod.LOGGER.warn("Could not move Script Box files {} to {}", old, folder, e);
+		}
 	}
 
 	public static String newId(MinecraftServer server) {
 		while (true) {
 			String id = String.format(Locale.ROOT, "%012x", java.util.concurrent.ThreadLocalRandom.current().nextLong() & 0xFFFFFFFFFFFFL);
-			if (!Files.exists(root(server).resolve(id))) {
+			if (!Files.exists(root(server).resolve(id)) && !Files.exists(oldRoot(server).resolve(id))) {
 				return id;
 			}
 		}
