@@ -1,4 +1,5 @@
 {
+	"block.billboard_api.data_pipe": "Datenleitung",
 	"block.billboard_api.lua_box": "Lua-Box",
 	"message.billboard_api.no_lua_box": "Keine Lua-Box bei %s %s %s.",
 	"message.billboard_api.box_status": "Lua-Box: %s",

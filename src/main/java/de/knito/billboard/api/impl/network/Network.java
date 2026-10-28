@@ -27,10 +27,11 @@ import de.knito.billboard.api.LuaClient;
 import de.knito.billboard.api.impl.ApiConfig;
 import de.knito.billboard.api.impl.BillboardApiMod;
 import de.knito.billboard.api.impl.box.LuaBoxBlock;
+import de.knito.billboard.api.impl.pipe.DataPipeBlock;
 
 /**
- * What one Lua Box reaches right now: a walk from the box through every box and pipe that touches it, and every
- * Lua client that touches one of them. Nothing travels through a network; it only decides who may call whom.
+ * What one Lua Box reaches right now: a walk from the box through every box and data pipe joined to it, and every
+ * Lua client that touches one of them. A pipe side switched off joins nothing. Nothing travels through a network; it only decides who may call whom.
  *
  * <p>The walk never loads a chunk: clients in unloaded chunks are simply not there. Names are made unique here,
  * per network, case-insensitive: a client without a name gets the lowest free {@code <type>_<n>}, and when two
@@ -99,16 +100,34 @@ public final class Network {
 		queue.add(start);
 		visited.add(start);
 		int boxes = 1;
+		int pipes = 0;
 		String problem = null;
 		walk:
 		while (!queue.isEmpty()) {
 			BlockPos pos = queue.removeFirst();
+			BlockState here = level.getBlockState(pos);
+			boolean herePipe = here.getBlock() instanceof DataPipeBlock;
 			for (Direction direction : Direction.values()) {
+				if (herePipe && !DataPipeBlock.joins(here, direction)) {
+					continue;
+				}
 				BlockPos next = pos.relative(direction);
 				if (visited.contains(next) || found.containsKey(next) || !level.isLoaded(next)) {
 					continue;
 				}
 				BlockState state = level.getBlockState(next);
+				if (state.getBlock() instanceof DataPipeBlock) {
+					if (!DataPipeBlock.joins(state, direction.getOpposite())) {
+						continue;
+					}
+					visited.add(next);
+					if (++pipes > ApiConfig.networkMaxPipes()) {
+						problem = "network too large (more than " + ApiConfig.networkMaxPipes() + " pipes)";
+						break walk;
+					}
+					queue.addLast(next);
+					continue;
+				}
 				if (state.getBlock() instanceof LuaBoxBlock) {
 					visited.add(next);
 					if (++boxes > ApiConfig.networkMaxBoxes()) {

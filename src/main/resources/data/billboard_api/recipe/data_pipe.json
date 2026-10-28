@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "R": "minecraft:redstone"
+  },
+  "pattern": [
+    "CRC"
+  ],
+  "result": {
+    "id": "billboard_api:data_pipe",
+    "count": 6
+  }
+}
