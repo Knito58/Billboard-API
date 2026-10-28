@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import de.knito.billboard.api.LuaArgs;
+import de.knito.billboard.api.LuaCaller;
 import de.knito.billboard.api.lua.cobalt.Constants;
 import de.knito.billboard.api.lua.cobalt.LuaError;
 import de.knito.billboard.api.lua.cobalt.LuaString;
@@ -30,13 +31,13 @@ final class LuaValues {
 	}
 
 	/** Arguments from {@code first} on. Top-level strings stay bytes, so binary data comes through unchanged. */
-	static LuaArgs args(Varargs args, int first) throws LuaError {
+	static LuaArgs args(Varargs args, int first, LuaCaller caller) throws LuaError {
 		List<Object> values = new ArrayList<>();
 		for (int i = first; i <= args.count(); i++) {
 			LuaValue value = args.arg(i);
 			values.add(value.typeName().equals("string") ? bytes(value.checkLuaString()) : toJava(value, 0, Collections.newSetFromMap(new IdentityHashMap<>())));
 		}
-		return new LuaArgs(values);
+		return new LuaArgs(values, caller);
 	}
 
 	private static Object toJava(LuaValue value, int depth, Set<LuaValue> open) throws LuaError {
