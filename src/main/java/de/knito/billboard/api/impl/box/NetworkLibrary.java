@@ -62,7 +62,7 @@ final class NetworkLibrary {
 				RegisteredFunction.of("byType", (s, type) -> byType(type.checkString())),
 				RegisteredFunction.of("engine", s -> engine()),
 				RegisteredFunction.ofV("call", (s, args) -> call(args)),
-				RegisteredFunction.of("poll", (s, job) -> poll(job.checkInteger())),
+				RegisteredFunction.ofV("poll", (s, args) -> poll(args.arg(1).checkInteger())),
 		});
 	}
 
