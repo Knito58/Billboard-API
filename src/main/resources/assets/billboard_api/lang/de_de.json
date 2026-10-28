@@ -16,5 +16,12 @@
 	"gui.billboard_api.box.folder": "Ordner",
 	"gui.billboard_api.box.folder_tooltip": "Öffnet den Ordner dieser Box im Dateimanager. Nach Änderungen am Programm dort Neustart drücken.",
 	"gui.billboard_api.box.open_file": "Klicken öffnet die Datei mit dem passenden Programm. Nach dem Speichern Neustart drücken.",
-	"gui.billboard_api.box.opened": "Öffne %s..."
+	"gui.billboard_api.box.opened": "Öffne %s...",
+	"gui.billboard_api.box.network_view": "Netzwerk",
+	"gui.billboard_api.box.files_view": "Dateien",
+	"gui.billboard_api.box.network": "Erreichbare Maschinen: %s (Klick zum Umbenennen)",
+	"gui.billboard_api.box.no_clients": "Keine. Stell eine Maschine an die Box oder eine Leitung.",
+	"gui.billboard_api.box.other_owner": "%s, nicht deine",
+	"gui.billboard_api.box.name": "Neuer Name",
+	"gui.billboard_api.box.rename": "Umbenennen"
 }

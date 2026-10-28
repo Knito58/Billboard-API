@@ -13,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.imageio.ImageIO;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 
 import de.knito.billboard.api.impl.ApiConfig;
@@ -59,6 +60,13 @@ public final class BoxUploads {
 			return;
 		}
 		switch (payload.action()) {
+			case RENAME -> {
+				if (!box.canControl(player)) {
+					box.print(player.getName().getString() + " may not rename machines of this Lua Box (server: operators only).", true);
+				} else {
+					box.renameClient(BlockPos.of(payload.target()), payload.name());
+				}
+			}
 			case RESTART, STOP -> {
 				if (!box.canControl(player)) {
 					box.print(player.getName().getString() + " may not restart or stop this Lua Box (server: operators only).", true);

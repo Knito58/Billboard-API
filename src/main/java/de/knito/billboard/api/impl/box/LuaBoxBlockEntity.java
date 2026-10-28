@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +32,7 @@ import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import de.knito.billboard.api.impl.ApiConfig;
 import de.knito.billboard.api.impl.ModBlockEntities;
 import de.knito.billboard.api.impl.net.LuaBoxStatePayload;
+import de.knito.billboard.api.impl.network.Network;
 
 /**
  * One Lua Box: the id of its file folder, its owner, and the program running now. The program starts when
@@ -280,7 +282,28 @@ public class LuaBoxBlockEntity extends BlockEntity implements ExtendedMenuProvid
 		}
 		LuaBoxStatePayload.Limits limits = new LuaBoxStatePayload.Limits(ApiConfig.boxMaxLuaKb(), ApiConfig.boxMaxFiles(),
 				ApiConfig.boxMaxFileKb(), String.join(",", ApiConfig.boxFileTypes()));
-		return new LuaBoxStatePayload(statusText(), canEdit, canControl, files, shown, limits, localFolder);
+		return new LuaBoxStatePayload(statusText(), canEdit, canControl, files, shown, limits, localFolder, networkPayload());
+	}
+
+	private LuaBoxStatePayload.Network networkPayload() {
+		Network found = network.get();
+		List<LuaBoxStatePayload.Client> clients = found.members().stream()
+				.sorted(Comparator.comparing((Network.Member m) -> Network.lower(m.name())))
+				.map(m -> new LuaBoxStatePayload.Client(m.pos().asLong(), m.type(), m.name(), m.usable()))
+				.toList();
+		return new LuaBoxStatePayload.Network(clients, found.problem() == null ? "" : found.problem());
+	}
+
+	/** A player renamed a client in the Network view. */
+	void renameClient(BlockPos pos, String name) {
+		Network.Member member = network.get().at(pos);
+		if (member == null || !member.usable()) {
+			print("That machine is not in this box's network any more.", true);
+			return;
+		}
+		String old = member.name();
+		String problem = network.rename(member, name);
+		print(problem == null ? "Renamed " + old + " to " + name + "." : "Could not rename " + old + ": " + problem + ".", problem != null);
 	}
 
 	/**

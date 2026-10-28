@@ -19,7 +19,6 @@ import de.knito.billboard.api.LuaException;
 import de.knito.billboard.api.LuaMethod;
 import de.knito.billboard.api.LuaMethods;
 import de.knito.billboard.api.impl.BillboardApiMod;
-import de.knito.billboard.api.impl.network.ClientData;
 import de.knito.billboard.api.impl.network.Network;
 import de.knito.billboard.api.lua.cobalt.Constants;
 import de.knito.billboard.api.lua.cobalt.LuaError;
@@ -259,17 +258,10 @@ final class NetworkLibrary {
 		} catch (LuaException e) {
 			throw new LuaError(e.getMessage(), 0);
 		}
-		if (!ClientData.isValidName(name)) {
-			return ValueFactory.varargsOf(Constants.NIL, ValueFactory.valueOf("invalid name (" + ClientData.NAME_RULE + ")"));
+		String problem = box.network().rename(member, name);
+		if (problem != null) {
+			return ValueFactory.varargsOf(Constants.NIL, ValueFactory.valueOf(problem));
 		}
-		for (Network.Member other : network().members()) {
-			if (other != member && Network.lower(other.name()).equals(Network.lower(name))) {
-				return ValueFactory.varargsOf(Constants.NIL, ValueFactory.valueOf("the name " + other.name() + " is taken in this network"));
-			}
-		}
-		member.entity().setAttached(ClientData.NAME, name);
-		member.entity().setChanged();
-		box.network().invalidate();
 		return Constants.TRUE;
 	}
 

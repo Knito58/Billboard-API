@@ -25,3 +25,5 @@
 - Vanilla signs and hanging signs are Lua clients, `minecraft:sign`.
 - Data Pipe (`billboard_api:data_pipe`, 8 from planks, paper, planks; cardboard look like the Lua Box, wood sound): joins Lua Boxes and Lua clients
   into one network. Sneak-click an arm with an empty hand to switch that side off. `network_max_pipes=512`.
+- Box screen: a Network button swaps the file list for the machines the box reaches, with their type; click one to
+  rename it. Machines of other owners are shown greyed out.

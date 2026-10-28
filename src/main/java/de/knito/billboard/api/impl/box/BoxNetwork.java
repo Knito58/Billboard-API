@@ -3,9 +3,12 @@ package de.knito.billboard.api.impl.box;
 import java.util.List;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
+import de.knito.billboard.api.impl.network.ClientData;
 import de.knito.billboard.api.impl.network.Network;
 import de.knito.billboard.api.impl.network.RenameLog;
 
@@ -46,6 +49,22 @@ final class BoxNetwork {
 			renamesSeen = RenameLog.last();
 		}
 		return network;
+	}
+
+	/** Gives a client a new name: null if done, else why not. */
+	@Nullable String rename(Network.Member member, String name) {
+		if (!ClientData.isValidName(name)) {
+			return "invalid name (" + ClientData.NAME_RULE + ")";
+		}
+		for (Network.Member other : get().members()) {
+			if (!other.pos().equals(member.pos()) && Network.lower(other.name()).equals(Network.lower(name))) {
+				return "the name " + other.name() + " is taken in this network";
+			}
+		}
+		member.entity().setAttached(ClientData.NAME, name);
+		member.entity().setChanged();
+		invalidate();
+		return null;
 	}
 
 	/** A name changed: walk again on the next call, even in the same tick. */
