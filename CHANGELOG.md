@@ -17,9 +17,11 @@
   `network.list()`, `network.findByName(name)`, `network.find(type)`, `network.version()` and a handle per client
   with `getName()`, `setName(name)`, `getType()` and the client's own functions. A client may answer later with a
   `CompletableFuture`; the program waits for it.
-- A box reaches clients that touch it or touch a Lua Box next to it. Names are kept by the library on the machine;
+- A box reaches clients that touch it, a Lua Box or a pipe joined to it. Names are kept by the library on the machine;
   a name clash gets the newcomer renamed, and every box tells. Settings `network_max_clients=64`,
   `network_max_boxes=8`, `network_owner_check=true`: a box drives only machines its owner placed; machines from
   before go to the owner of the first box that reaches them.
 - `engine` still works for Script Box programs: the one Billboard Engine of the network.
 - Vanilla signs and hanging signs are Lua clients, `minecraft:sign`.
+- Data Pipe (`billboard_api:data_pipe`, 8 from planks, paper, planks; cardboard look like the Lua Box, wood sound): joins Lua Boxes and Lua clients
+  into one network. Sneak-click an arm with an empty hand to switch that side off. `network_max_pipes=512`.

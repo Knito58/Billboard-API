@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "W": "#minecraft:planks",
+    "P": "minecraft:paper"
+  },
+  "pattern": [
+    "WPW"
+  ],
+  "result": {
+    "id": "billboard_api:data_pipe",
+    "count": 8
+  }
+}

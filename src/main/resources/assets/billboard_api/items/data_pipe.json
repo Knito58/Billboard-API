@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "billboard_api:item/data_pipe"
+  }
+}

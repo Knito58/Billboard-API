@@ -1,0 +1,77 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "pipe": "billboard_api:block/data_pipe",
+    "particle": "billboard_api:block/data_pipe"
+  },
+  "elements": [
+    {
+      "from": [
+        6,
+        6,
+        6
+      ],
+      "to": [
+        10,
+        10,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#pipe",
+          "uv": [
+            6,
+            0,
+            10,
+            4
+          ]
+        },
+        "south": {
+          "texture": "#pipe",
+          "uv": [
+            6,
+            0,
+            10,
+            4
+          ]
+        },
+        "east": {
+          "texture": "#pipe",
+          "uv": [
+            6,
+            0,
+            10,
+            4
+          ]
+        },
+        "west": {
+          "texture": "#pipe",
+          "uv": [
+            6,
+            0,
+            10,
+            4
+          ]
+        },
+        "up": {
+          "texture": "#pipe",
+          "uv": [
+            6,
+            0,
+            10,
+            4
+          ]
+        },
+        "down": {
+          "texture": "#pipe",
+          "uv": [
+            6,
+            0,
+            10,
+            4
+          ]
+        }
+      }
+    }
+  ]
+}
