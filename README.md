@@ -29,7 +29,8 @@ print(port.getBlock("up").properties.extended)   -- name and block state of the 
 
 A port gives nothing until a program says so, gives weak power like a block of redstone (it drives what touches
 it, not what sits behind a solid block), and lets go of a side when the program that set it ends or is stopped. A
-side that a program drives reads 0 from `getInput`.
+side that a program drives reads 0 from `getInput`. The first program to drive a side owns it until it sets 0
+or ends; another program that tries gets an error naming the box.
 
 ```lua
 print(table.concat(network.list(), ", "))    -- sign_1, typewriter_1

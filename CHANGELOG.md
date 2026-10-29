@@ -9,7 +9,8 @@
   `getInput(side)` and `getBlock(side)`, which gives the name and block state of the neighbour, such as a piston's
   `extended`. Sides are `north`, `south`, `east`, `west`, `up` and `down`. It gives nothing until a program says so,
   gives weak power like a block of redstone, and lets go of a side when the program that set it ends or is stopped.
-  A side a program drives reads 0 from `getInput`.
+  A side a program drives reads 0 from `getInput`. The first program to drive a side owns it until it sets 0 or
+  ends; another program gets an error naming the box instead of silently taking it over.
 
 ## 0.1.0 (not released)
 

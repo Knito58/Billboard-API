@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import de.knito.billboard.api.LuaCaller;
+import de.knito.billboard.api.LuaException;
 import de.knito.billboard.api.impl.ModBlockEntities;
 
 /**
@@ -30,9 +31,16 @@ public class RedstonePortBlockEntity extends BlockEntity {
 		return power[side.ordinal()];
 	}
 
-	/** Sets one side for the program {@code caller}; a level of 0 lets go of it. */
-	public void setOutput(Direction side, int level, @Nullable LuaCaller caller) {
+	/**
+	 * Sets one side for the program {@code caller}; a level of 0 lets go of it. The first program to drive a side
+	 * owns it until it lets go or ends; another program gets an error instead of silently taking it over.
+	 */
+	public void setOutput(Direction side, int level, @Nullable LuaCaller caller) throws LuaException {
 		int index = side.ordinal();
+		LuaCaller holder = driver[index];
+		if (holder != null && holder.isActive() && !holder.equals(caller)) {
+			throw new LuaException("side \"" + side.getSerializedName() + "\" is driven by " + holder.describe());
+		}
 		boolean changed = power[index] != level;
 		power[index] = level;
 		driver[index] = level == 0 ? null : caller;
