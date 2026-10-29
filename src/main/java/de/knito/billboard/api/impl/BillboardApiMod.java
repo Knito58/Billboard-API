@@ -10,6 +10,7 @@ import net.fabricmc.api.ModInitializer;
 import de.knito.billboard.api.impl.clients.SignClient;
 import de.knito.billboard.api.impl.net.ModNetworking;
 import de.knito.billboard.api.impl.network.ClientData;
+import de.knito.billboard.api.impl.port.RedstonePortClient;
 
 /** The library's server and common side: the Lua Box, data pipes and the network of Lua clients. */
 public class BillboardApiMod implements ModInitializer {
@@ -24,6 +25,7 @@ public class BillboardApiMod implements ModInitializer {
 		ScriptBoxAlias.initialize();
 		ClientData.initialize();
 		SignClient.initialize();
+		RedstonePortClient.initialize();
 		ModMenus.initialize();
 		ModNetworking.initialize();
 		LuaBoxCommand.initialize();

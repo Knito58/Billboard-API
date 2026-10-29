@@ -16,6 +16,21 @@ it. Pipes join by themselves; sneak-click an arm (or a side) with an empty hand 
 so two networks can run side by side. Craft 8 cardboard pipes from planks, paper, planks in a row. By default a box drives only machines placed by its own owner; `network_owner_check=false` in
 `config/billboard_api.properties` lets any box drive any machine it reaches.
 
+A Redstone Port (a Data Pipe and redstone dust, shapeless) connects Lua to vanilla redstone. It passes the network
+on like a pipe, so it can sit inside a run of pipes, and it is a client of its own. Sides are `"north"`, `"south"`,
+`"east"`, `"west"`, `"up"` and `"down"`:
+
+```lua
+local port = network.findByName("redstone_port_1")
+port.setOutput("up", 15)               -- or true; a piston above it extends. 0 or false lets go
+print(port.getInput("north"))          -- 0 to 15: a lever, a pressure plate, a tripwire hook ...
+print(port.getBlock("up").properties.extended)   -- name and block state of the neighbour
+```
+
+A port gives nothing until a program says so, gives weak power like a block of redstone (it drives what touches
+it, not what sits behind a solid block), and lets go of a side when the program that set it ends or is stopped. A
+side that a program drives reads 0 from `getInput`.
+
 ```lua
 print(table.concat(network.list(), ", "))    -- sign_1, typewriter_1
 local sign = network.findByName("sign_1")    -- nil if there is none

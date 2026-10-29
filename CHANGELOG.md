@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Redstone Port (`billboard_api:redstone_port`, a Data Pipe and redstone dust): the bridge between Lua and vanilla
+  redstone. A full block in the pipe's cardboard look that joins the network on all six sides, so it can sit inside a
+  run of pipes (a pipe side that is switched off still keeps it out). It is a Lua client of type
+  `billboard_api:redstone_port`, with `setOutput(side, level)` (0 to 15, or true for 15), `getOutput(side)`,
+  `getInput(side)` and `getBlock(side)`, which gives the name and block state of the neighbour, such as a piston's
+  `extended`. Sides are `north`, `south`, `east`, `west`, `up` and `down`. It gives nothing until a program says so,
+  gives weak power like a block of redstone, and lets go of a side when the program that set it ends or is stopped.
+  A side a program drives reads 0 from `getInput`.
+
 ## 0.1.0 (not released)
 
 - Project set up: Fabric mod for Minecraft 26.3 with Cobalt, the Lua VM, packed in under its own package name.
