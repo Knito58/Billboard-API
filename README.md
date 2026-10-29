@@ -1,13 +1,14 @@
 # Billboard API
 
-Fabric library mod for Minecraft 26.3. It holds the Lua Box and its Lua runtime (Cobalt), and data
-pipes that connect Lua clients from other mods (such as the Billboard Engine and the Typestones
-Typewriter) to a Lua Box as peripherals.
+Fabric mod for Minecraft 26.3. It puts Lua programs into the world: the Lua Box and its Lua runtime (Cobalt),
+data pipes that join boxes and machines into a network, and a Redstone Port that connects Lua to vanilla redstone.
+Signs are machines too. Machines of other mods (such as the Billboard Engine and the Typestones Typewriter) join the
+same network as peripherals, but none of them is needed.
 
 Used by [Billboard Engine](https://github.com/Knito58/billboard) and, optionally,
 [Typestones](https://github.com/Knito58/Typestones).
 
-Work in progress; no release yet.
+Documentation is in the [wiki](https://github.com/Knito58/Billboard-API/wiki) (the `wiki/` folder of this repository).
 
 ## For Lua programs
 
