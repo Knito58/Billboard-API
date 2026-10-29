@@ -45,7 +45,7 @@ jobs:
           jar="upload/billboard-api-$version.jar"
 
           # Changelog: the first section of CHANGELOG.md, without its heading
-          awk 'NR > 1 && /^## / { exit } NR > 1' CHANGELOG.md > changelog.md
+          awk '/^## / { n++; next } n == 1' CHANGELOG.md > changelog.md
 
           # CurseForge wants its own ids for game version, loader, Java and environment
           curl -sSf -H "X-Api-Token: $CF_TOKEN" "$API/game/version-types" > types.json
