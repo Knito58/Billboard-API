@@ -1,6 +1,8 @@
 **Billboard API** is a Fabric mod for Minecraft 26.3. It puts Lua programs into the world: a **Lua Box** runs a
 program, and **Data Pipes** join it to the machines it drives.
 
+![A Lua Box, two Redstone Ports and a pipe: a piston, a lamp and a sign that a Lua program drives](images/01-demo-1-piston-out.jpg)
+
 - **Lua Box**: a block that runs one Lua program, written in any text editor and dropped onto its screen. See [Lua Box](Lua-Box).
 - **Data Pipes** join Lua Boxes and machines into a network, see [Network and pipes](Network-and-pipes).
 - **Redstone Port**: Lua to vanilla redstone. A program powers pistons, doors and lamps, and reads levers,

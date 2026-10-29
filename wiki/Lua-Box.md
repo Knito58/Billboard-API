@@ -5,6 +5,8 @@ when it is unloaded, and it keeps nothing between runs.
 
 Right-click the box.
 
+![The Lua Box screen: files, output and the Restart and Stop buttons](images/03-lua-box-screen.png)
+
 - **Files**: `main.lua` and up to 8 more files. Drop files from your file manager onto the screen.
   In single player the **Folder** button opens the box's folder, and a click on a file opens it in your editor.
 - **Output**: what the program prints, and its errors.

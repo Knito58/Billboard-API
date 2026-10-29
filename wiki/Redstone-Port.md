@@ -5,6 +5,8 @@ a tripwire hook, a button or a comparator.
 The port looks like a Data Pipe block and joins the network on all six sides, like a pipe, so it can sit inside a run
 of pipes. A machine touching it joins the network too.
 
+![A Redstone Port driving a piston, a lamp and a sign](images/01-demo-1-piston-out.jpg)
+
 ## In a program
 
 Sides are `"north"`, `"south"`, `"east"`, `"west"`, `"up"` and `"down"`, as the world sees them.
@@ -31,6 +33,9 @@ print(port.getBlock("up").properties.extended)
 
 - A program must `claim()` the port before it sets a signal. Another program that tries gets `false` and who holds it.
   Reading needs no claim.
+![Box A holds the port; box B is told the port is taken](images/05-claim-taken.jpg)
+![Box A has stopped; box B got the port](images/06-claim-free.jpg)
+
 - Nothing is saved. A port gives nothing until a program says so. When the program that claimed it ends, is stopped or
   loses its box, the port lets go and all its signals go to 0, so a piston never stays out after its program.
 - A port gives **weak power**, like a block of redstone: it drives what touches it, not what sits behind a solid block.
@@ -44,6 +49,8 @@ print(port.getBlock("up").properties.extended)
 
 Right-click a port with a block in your hand and it looks like that block. The item is not used up. Sneak-click with an
 empty hand to take the look off. Sneak-click with a block still places the block.
+
+![Two Redstone Ports that look like glass and like a copper grate; the lever sits on the copper one](images/07-camouflage-glass.jpg)
 
 Only the look is copied: the port keeps its own hardness, sound and signals. Any block with an ordinary model works,
 glass and slabs too, but the port stays a full block, so the result may look odd. Logs show their bark on the sides.

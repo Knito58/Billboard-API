@@ -14,6 +14,10 @@
 
 All three break fastest with an axe.
 
+![Lua Box recipe: iron ingots in the corners, redstone around the paper](images/08-recipe-lua-box.png)
+![Data Pipe recipe: planks, paper, planks in a row gives 8](images/09-recipe-data-pipe.png)
+![Redstone Port recipe: a Data Pipe and a redstone dust](images/10-recipe-redstone-port.png)
+
 ## A first program
 
 1. Place a Lua Box, and a sign right next to it.
