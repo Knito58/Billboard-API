@@ -27,6 +27,9 @@ print(port.getInput("north"))          -- 0 to 15: a lever, a pressure plate, a 
 print(port.getBlock("up").properties.extended)   -- name and block state of the neighbour
 ```
 
+Right-click a port with a block to make it look like that block (the item is not used up); sneak-click it with an
+empty hand to take the look off. Only the look is copied.
+
 A port gives nothing until a program says so, gives weak power like a block of redstone (it drives what touches
 it, not what sits behind a solid block), and lets go of a side when the program that set it ends or is stopped. A
 side that a program drives reads 0 from `getInput`. The first program to drive a side owns it until it sets 0
