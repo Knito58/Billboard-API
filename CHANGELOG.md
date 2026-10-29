@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- `network_owner_check` is now off by default: a box drives any machine it reaches, and the library has no permissions.
+  Set `network_owner_check=true` to limit a box to machines placed by its owner. A `billboard_api.properties` written
+  by 0.1.0 keeps `true` until changed.
 - Redstone Port (`billboard_api:redstone_port`, a Data Pipe and redstone dust): the bridge between Lua and vanilla
   redstone. A full block in the pipe's cardboard look that joins the network on all six sides, so it can sit inside a
   run of pipes (a pipe side that is switched off still keeps it out). It is a Lua client of type

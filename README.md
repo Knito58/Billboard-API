@@ -13,8 +13,8 @@ Work in progress; no release yet.
 
 A Lua Box reaches every Lua client that touches it, or touches a Data Pipe or another Lua Box joined to
 it. Pipes join by themselves; sneak-click an arm (or a side) with an empty hand to switch that side off,
-so two networks can run side by side. Craft 8 cardboard pipes from planks, paper, planks in a row. By default a box drives only machines placed by its own owner; `network_owner_check=false` in
-`config/billboard_api.properties` lets any box drive any machine it reaches.
+so two networks can run side by side. Craft 8 cardboard pipes from planks, paper, planks in a row. A box drives any machine it reaches; there is no permission system. `network_owner_check=true` in
+`config/billboard_api.properties` limits a box to machines placed by its own owner, for servers that want it.
 
 A Redstone Port (a Data Pipe and redstone dust, shapeless) connects Lua to vanilla redstone. It passes the network
 on like a pipe, so it can sit inside a run of pipes, and it is a client of its own. Sides are `"north"`, `"south"`,
