@@ -36,7 +36,7 @@ public final class ApiConfig {
 	private static int networkMaxPipes = 512;
 	private static int networkMaxClients = 64;
 	private static int networkMaxBoxes = 8;
-	private static boolean networkOwnerCheck = true;
+	private static boolean networkOwnerCheck = false;
 
 	private ApiConfig() {
 	}
@@ -210,8 +210,8 @@ public final class ApiConfig {
 						network_max_pipes=%d
 						network_max_clients=%d
 						network_max_boxes=%d
-						# true: a box drives only machines placed by its own owner (machines from before get the
-						# owner of the first box that reaches them). false: any box drives any machine it reaches.
+						# false (the default): any box drives any machine it reaches. true: a box drives only machines
+						# placed by its own owner (machines from before get the owner of the first box that reaches them).
 						network_owner_check=%b
 						""".formatted(boxesEnabled, boxesOpsOnly, boxMillisPerTick, boxMaxSecondsWithoutSleep, boxTooBusySeconds,
 						LIMIT_FILE_KB, boxMaxLuaKb, boxMaxFiles, boxMaxFileKb, String.join(",", boxFileTypes),

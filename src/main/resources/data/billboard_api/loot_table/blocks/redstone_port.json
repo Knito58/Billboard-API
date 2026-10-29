@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "billboard_api:redstone_port"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "billboard_api:blocks/redstone_port"
+}

@@ -17,6 +17,7 @@ import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 
 import de.knito.billboard.api.impl.box.LuaBoxBlock;
 import de.knito.billboard.api.impl.pipe.DataPipeBlock;
+import de.knito.billboard.api.impl.port.RedstonePortBlock;
 
 public class ModBlocks {
 	public static final Block LUA_BOX = register(
@@ -29,6 +30,12 @@ public class ModBlocks {
 			"data_pipe",
 			DataPipeBlock::new,
 			BlockBehaviour.Properties.of().strength(0.5f).sound(SoundType.WOOD).noOcclusion()
+	);
+
+	public static final Block REDSTONE_PORT = register(
+			"redstone_port",
+			RedstonePortBlock::new,
+			BlockBehaviour.Properties.of().strength(0.5f).sound(SoundType.WOOD)
 	);
 
 	private static Block register(String name, Function<BlockBehaviour.Properties, Block> blockFactory, BlockBehaviour.Properties properties) {
@@ -45,6 +52,7 @@ public class ModBlocks {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register((creativeTab) -> {
 			creativeTab.accept(LUA_BOX.asItem());
 			creativeTab.accept(DATA_PIPE.asItem());
+			creativeTab.accept(REDSTONE_PORT.asItem());
 		});
 	}
 }

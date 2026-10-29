@@ -28,6 +28,7 @@ import de.knito.billboard.api.impl.ApiConfig;
 import de.knito.billboard.api.impl.BillboardApiMod;
 import de.knito.billboard.api.impl.box.LuaBoxBlock;
 import de.knito.billboard.api.impl.pipe.DataPipeBlock;
+import de.knito.billboard.api.impl.port.RedstonePortBlock;
 
 /**
  * What one Lua Box reaches right now: a walk from the box through every box and data pipe joined to it, and every
@@ -136,6 +137,11 @@ public final class Network {
 					}
 					queue.addLast(next);
 					continue;
+				}
+				if (state.getBlock() instanceof RedstonePortBlock) {
+					// A port is a client and passes the network on, like a pipe that joins on every side.
+					visited.add(next);
+					queue.addLast(next);
 				}
 				Member member = client(level, next, state, direction.getOpposite());
 				if (member != null) {
