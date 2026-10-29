@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
+- A wiki in `wiki/`, copied to the GitHub wiki by the Wiki workflow.
 - `network_owner_check` is now off by default: a box drives any machine it reaches, and the library has no permissions.
   Set `network_owner_check=true` to limit a box to machines placed by its owner. A `billboard_api.properties` written
   by 0.1.0 keeps `true` until changed.
@@ -18,7 +19,7 @@
   gives true, or false and who holds it; `release()` gives true, or false if the program did not hold it; `isClaimed()`
   gives false, or true and who holds it. Reading needs no claim.
 
-## 0.1.0 (not released)
+## 0.1.0
 
 - Project set up: Fabric mod for Minecraft 26.3 with Cobalt, the Lua VM, packed in under its own package name.
 - Lua Box, taken over from Billboard Engine's Script Box: the program is `main.lua`, plus up to 8 more files of the
