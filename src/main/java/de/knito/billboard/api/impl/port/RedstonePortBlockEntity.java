@@ -23,15 +23,17 @@ import de.knito.billboard.api.LuaException;
 import de.knito.billboard.api.impl.ModBlockEntities;
 
 /**
- * The signal of each side, and the program that set it. Signals are not saved: a port gives nothing until a
- * program says so, and it lets go of a side when that program ends, is stopped, or its box is gone, so a piston
- * never stays out after the program that pushed it. What is saved is the block it is camouflaged as, if any.
+ * The signal of each side, and the program that claimed the port. Only that program sets signals. Nothing of it
+ * is saved: a port gives nothing until a program claims it and says so, and it lets go of everything when that
+ * program ends, is stopped, or its box is gone, so a piston never stays out after the program that pushed it.
+ * What is saved is the block it is camouflaged as, if any.
  */
 public class RedstonePortBlockEntity extends BlockEntity implements RenderDataBlockEntity {
 	public static final int MAX_POWER = 15;
 
 	private final int[] power = new int[Direction.values().length];
-	private final @Nullable LuaCaller[] driver = new LuaCaller[Direction.values().length];
+	/** The program that claimed the port, or null. Not saved: a claim ends with the program. */
+	private @Nullable LuaCaller holder;
 
 	/** The block whose look the port wears, or null for its own. Only the look: nothing else is copied. */
 	private @Nullable BlockState camouflage;
@@ -96,36 +98,59 @@ public class RedstonePortBlockEntity extends BlockEntity implements RenderDataBl
 		return power[side.ordinal()];
 	}
 
-	/**
-	 * Sets one side for the program {@code caller}; a level of 0 lets go of it. The first program to drive a side
-	 * owns it until it lets go or ends; another program gets an error instead of silently taking it over.
-	 */
-	public void setOutput(Direction side, int level, @Nullable LuaCaller caller) throws LuaException {
-		int index = side.ordinal();
-		LuaCaller holder = driver[index];
-		if (holder != null && holder.isActive() && !holder.equals(caller)) {
-			throw new LuaException("side \"" + side.getSerializedName() + "\" is driven by " + holder.describe());
+	/** The program holding the port, or null when nobody does (a holder that has ended no longer counts). */
+	public @Nullable LuaCaller holder() {
+		return holder != null && holder.isActive() ? holder : null;
+	}
+
+	/** Claims the port for {@code caller}. Another program that holds it makes this an error; claiming twice is fine. */
+	public void claim(@Nullable LuaCaller caller) throws LuaException {
+		if (caller == null) {
+			throw new LuaException("no program to claim the port for");
 		}
-		boolean changed = power[index] != level;
-		power[index] = level;
-		driver[index] = level == 0 ? null : caller;
-		if (changed) {
+		LuaCaller current = holder();
+		if (current != null && !current.equals(caller)) {
+			throw new LuaException("the port is claimed by " + current.describe());
+		}
+		holder = caller;
+	}
+
+	/** Lets go of the port and of all its signals. Nothing happens if {@code caller} does not hold it. */
+	public void release(@Nullable LuaCaller caller) {
+		if (holder != null && holder.equals(caller)) {
+			letGo();
+		}
+	}
+
+	/** Sets one side; only the program that claimed the port may. A level of 0 switches the side off. */
+	public void setOutput(Direction side, int level, @Nullable LuaCaller caller) throws LuaException {
+		LuaCaller current = holder();
+		if (current == null || !current.equals(caller)) {
+			throw new LuaException(current == null ? "claim the port first, with claim()" : "the port is claimed by " + current.describe());
+		}
+		int index = side.ordinal();
+		if (power[index] != level) {
+			power[index] = level;
 			changed();
 		}
 	}
 
+	/** Every tick: a claim whose program has ended, been stopped or lost its box is dropped with its signals. */
 	public static void serverTick(Level level, BlockPos pos, BlockState state, RedstonePortBlockEntity port) {
-		boolean changed = false;
-		for (int i = 0; i < port.power.length; i++) {
-			LuaCaller caller = port.driver[i];
-			if (port.power[i] > 0 && (caller == null || !caller.isActive())) {
-				port.power[i] = 0;
-				port.driver[i] = null;
-				changed = true;
-			}
+		if (port.holder != null && !port.holder.isActive()) {
+			port.letGo();
 		}
-		if (changed) {
-			port.changed();
+	}
+
+	private void letGo() {
+		holder = null;
+		boolean any = false;
+		for (int i = 0; i < power.length; i++) {
+			any |= power[i] != 0;
+			power[i] = 0;
+		}
+		if (any) {
+			changed();
 		}
 	}
 

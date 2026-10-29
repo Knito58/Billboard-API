@@ -18,7 +18,8 @@ import de.knito.billboard.api.LuaMethods;
 import de.knito.billboard.api.impl.ModBlockEntities;
 
 /**
- * The Lua side of a redstone port. Sides are named {@code "north"}, {@code "south"}, {@code "east"},
+ * The Lua side of a redstone port. A program claims the port with {@code claim()} before it sets a signal, and
+ * lets go with {@code release()} or by ending; reading needs no claim. Sides are named {@code "north"}, {@code "south"}, {@code "east"},
  * {@code "west"}, {@code "up"} and {@code "down"}, as the world sees them.
  */
 public final class RedstonePortClient implements LuaClient {
@@ -39,7 +40,15 @@ public final class RedstonePortClient implements LuaClient {
 
 	@Override
 	public void methods(LuaMethods methods) {
-		methods.add("setOutput", args -> {
+		methods.add("claim", args -> {
+					port.claim(args.caller());
+					return null;
+				})
+				.add("release", args -> {
+					port.release(args.caller());
+					return null;
+				})
+				.add("setOutput", args -> {
 					Direction side = side(args);
 					port.setOutput(side, power(args), args.caller());
 					return null;
