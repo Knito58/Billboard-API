@@ -103,23 +103,26 @@ public class RedstonePortBlockEntity extends BlockEntity implements RenderDataBl
 		return holder != null && holder.isActive() ? holder : null;
 	}
 
-	/** Claims the port for {@code caller}. Another program that holds it makes this an error; claiming twice is fine. */
-	public void claim(@Nullable LuaCaller caller) throws LuaException {
-		if (caller == null) {
-			throw new LuaException("no program to claim the port for");
-		}
+	/**
+	 * Claims the port for {@code caller}. Returns null when the caller holds it now (claiming twice is fine), or
+	 * the program that holds it instead.
+	 */
+	public @Nullable LuaCaller claim(LuaCaller caller) {
 		LuaCaller current = holder();
 		if (current != null && !current.equals(caller)) {
-			throw new LuaException("the port is claimed by " + current.describe());
+			return current;
 		}
 		holder = caller;
+		return null;
 	}
 
-	/** Lets go of the port and of all its signals. Nothing happens if {@code caller} does not hold it. */
-	public void release(@Nullable LuaCaller caller) {
-		if (holder != null && holder.equals(caller)) {
-			letGo();
+	/** Lets go of the port and of all its signals; false if {@code caller} does not hold it. */
+	public boolean release(@Nullable LuaCaller caller) {
+		if (holder() == null || !holder.equals(caller)) {
+			return false;
 		}
+		letGo();
+		return true;
 	}
 
 	/** Sets one side; only the program that claimed the port may. A level of 0 switches the side off. */

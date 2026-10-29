@@ -12,6 +12,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 
 import de.knito.billboard.api.BillboardApi;
 import de.knito.billboard.api.LuaArgs;
+import de.knito.billboard.api.LuaCaller;
 import de.knito.billboard.api.LuaClient;
 import de.knito.billboard.api.LuaException;
 import de.knito.billboard.api.LuaMethods;
@@ -19,7 +20,9 @@ import de.knito.billboard.api.impl.ModBlockEntities;
 
 /**
  * The Lua side of a redstone port. A program claims the port with {@code claim()} before it sets a signal, and
- * lets go with {@code release()} or by ending; reading needs no claim. Sides are named {@code "north"}, {@code "south"}, {@code "east"},
+ * lets go with {@code release()} or by ending; reading needs no claim. As with the other machines, {@code claim()}
+ * gives true, or false and who holds it; {@code release()} gives false if the program did not hold it;
+ * {@code isClaimed()} gives false, or true and who holds it. Sides are named {@code "north"}, {@code "south"}, {@code "east"},
  * {@code "west"}, {@code "up"} and {@code "down"}, as the world sees them.
  */
 public final class RedstonePortClient implements LuaClient {
@@ -41,12 +44,17 @@ public final class RedstonePortClient implements LuaClient {
 	@Override
 	public void methods(LuaMethods methods) {
 		methods.add("claim", args -> {
-					port.claim(args.caller());
-					return null;
+					LuaCaller caller = args.caller();
+					if (caller == null) {
+						throw new LuaException("no program to claim the port for");
+					}
+					LuaCaller other = port.claim(caller);
+					return other == null ? (Object) true : new Object[]{false, other.describe()};
 				})
-				.add("release", args -> {
-					port.release(args.caller());
-					return null;
+				.add("release", args -> port.release(args.caller()))
+				.add("isClaimed", args -> {
+					LuaCaller holder = port.holder();
+					return holder == null ? (Object) false : new Object[]{true, holder.describe()};
 				})
 				.add("setOutput", args -> {
 					Direction side = side(args);

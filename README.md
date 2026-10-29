@@ -22,7 +22,7 @@ on like a pipe, so it can sit inside a run of pipes, and it is a client of its o
 
 ```lua
 local port = network.findByName("redstone_port_1")
-port.claim()                           -- before driving it; an error if another program holds it
+local ok, who = port.claim()           -- before driving it: true, or false and who holds it
 port.setOutput("up", 15)               -- or true; a piston above it extends. 0 or false lets go
 print(port.getInput("north"))          -- 0 to 15: a lever, a pressure plate, a tripwire hook ...
 print(port.getBlock("up").properties.extended)   -- name and block state of the neighbour
@@ -31,8 +31,10 @@ print(port.getBlock("up").properties.extended)   -- name and block state of the 
 Right-click a port with a block to make it look like that block (the item is not used up); sneak-click it with an
 empty hand to take the look off. Only the look is copied.
 
-A program claims a port with `claim()` before it sets a signal, and lets go with `release()` or by ending;
-another program that tries to claim it gets an error naming the box. Reading (`getInput`, `getBlock`) needs no claim.
+A program claims a port with `claim()` before it sets a signal (`setOutput` is an error without it). As on the
+other machines, `claim()` gives true, or false and who holds it; `release()` gives true, or false if the program did
+not hold it; `isClaimed()` gives false, or true and who holds it. A port is also let go when its program ends.
+Reading (`getInput`, `getBlock`) needs no claim.
 A port gives nothing until a program says so, gives weak power like a block of redstone (it drives what touches
 it, not what sits behind a solid block), and lets go of all its signals when the program that claimed it ends or is stopped. A
 side that a program drives reads 0 from `getInput`.

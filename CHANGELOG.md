@@ -14,8 +14,9 @@
   gives weak power like a block of redstone, and lets go of all its signals when the program that claimed it ends or is stopped.
   Right-click a port with a block to make it look like that block (the item is not used up); sneak-click with an empty
   hand takes the look off. Only the look is copied. A side a program drives reads 0 from `getInput`.
-  A program claims the port with `claim()` before it sets a signal and lets go with `release()` or by ending; another
-  program gets an error naming the box. Reading needs no claim.
+  A program claims the port with `claim()` before it sets a signal (`setOutput` is an error without it). `claim()`
+  gives true, or false and who holds it; `release()` gives true, or false if the program did not hold it; `isClaimed()`
+  gives false, or true and who holds it. Reading needs no claim.
 
 ## 0.1.0 (not released)
 
