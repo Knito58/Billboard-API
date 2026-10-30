@@ -8,11 +8,15 @@ its **network**. Nothing travels through a pipe; the network is just the blocks 
   switched off; sneak-click again to switch it on.
 - A [Redstone Port](Redstone-Port) joins the network on all six sides, like a pipe, so it can sit inside a run of pipes.
 
+![Box, port, pipe, port and sign in one network](images/02-demo-1-piston-in.jpg)
+
 ## Names
 
 Every machine has a name. A new one gets `<type>_<n>`, the lowest free number: `sign_1`, `redstone_port_2`. Rename it in
 the box's **Network** view (click a machine) or with `setName` in a program. Names are 1 to 32 letters, digits, `_` or `-`,
 and compared without case. When two networks join and a name exists twice, the newcomer is renamed and every box says so.
+
+![The Network view of a box: two Redstone Ports and a sign](images/04-network-view.png)
 
 ## Limits
 

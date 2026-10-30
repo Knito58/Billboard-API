@@ -2,22 +2,25 @@
 
 ## 0.2.0
 
-- A wiki in `wiki/`, copied to the GitHub wiki by the Wiki workflow.
-- `network_owner_check` is now off by default: a box drives any machine it reaches, and the library has no permissions.
-  Set `network_owner_check=true` to limit a box to machines placed by its owner. A `billboard_api.properties` written
-  by 0.1.0 keeps `true` until changed.
-- Redstone Port (`billboard_api:redstone_port`, a Data Pipe and redstone dust): the bridge between Lua and vanilla
-  redstone. A full block in the pipe's cardboard look that joins the network on all six sides, so it can sit inside a
-  run of pipes (a pipe side that is switched off still keeps it out). It is a Lua client of type
-  `billboard_api:redstone_port`, with `setOutput(side, level)` (0 to 15, or true for 15), `getOutput(side)`,
-  `getInput(side)` and `getBlock(side)`, which gives the name and block state of the neighbour, such as a piston's
-  `extended`. Sides are `north`, `south`, `east`, `west`, `up` and `down`. It gives nothing until a program says so,
-  gives weak power like a block of redstone, and lets go of all its signals when the program that claimed it ends or is stopped.
-  Right-click a port with a block to make it look like that block (the item is not used up); sneak-click with an empty
-  hand takes the look off. Only the look is copied. A side a program drives reads 0 from `getInput`.
-  A program claims the port with `claim()` before it sets a signal (`setOutput` is an error without it). `claim()`
-  gives true, or false and who holds it; `release()` gives true, or false if the program did not hold it; `isClaimed()`
-  gives false, or true and who holds it. Reading needs no claim.
+New: **Redstone Port**, the bridge between Lua and vanilla redstone.
+
+- Craft it from a Data Pipe and a redstone dust. It looks like a pipe block and joins the network on all six sides, so
+  it can sit inside a run of pipes.
+- A program sets the signal on each side (0 to 15) to drive pistons, doors and lamps, and reads levers, pressure plates
+  and buttons.
+- `getBlock(side)` tells which block is next to the port and its state, for example whether a piston is `extended`.
+- A program claims the port with `claim()` before it sets a signal; `release()` and `isClaimed()` complete the set.
+  Everything is let go when the program ends or is stopped.
+- Right-click a port with a block to make it look like that block (the item is not used up). Sneak-click with an empty
+  hand to take the look off.
+
+Changed:
+
+- `network_owner_check` is now `false` by default: a box drives any machine it reaches. Set it to `true` to limit a box
+  to machines placed by its owner. A `billboard_api.properties` written by 0.1.0 keeps `true` until it is changed.
+
+Also: a wiki at https://github.com/Knito58/Billboard-API/wiki, with the Lua reference and a page for every block. The
+Lua Box, pipes, signs and redstone ports need no other mod.
 
 ## 0.1.0
 
