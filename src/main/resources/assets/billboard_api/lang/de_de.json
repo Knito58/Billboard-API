@@ -24,6 +24,8 @@
 	"gui.billboard_api.box.other_owner": "%s, nicht deine",
 	"gui.billboard_api.box.name": "Neuer Name",
 	"gui.billboard_api.box.rename": "Umbenennen",
+	"tooltip.billboard_api.client_name": "Netzwerkname: %s",
+	"config.jade.plugin_billboard_api.client_name": "Billboard API: Netzwerkname"
 	"gui.billboard_api.box.clear": "Ausgabe leeren",
 	"gui.billboard_api.box.clear_tooltip": "Leert die Ausgabezeilen, für alle, die diese Box offen haben.",
 	"gui.billboard_api.box.page_up": "Vorherige Maschinen (oder Mausrad über der Liste)",

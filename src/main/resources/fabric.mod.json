@@ -20,6 +20,9 @@
 		],
 		"client": [
 			"de.knito.billboard.api.client.BillboardApiClient"
+		],
+		"jade": [
+			"de.knito.billboard.api.client.JadeNames"
 		]
 	},
 	"mixins": [
@@ -32,6 +35,7 @@
 		"fabric-api": "*"
 	},
 	"suggests": {
-		"computercraft": "*"
+		"computercraft": "*",
+		"jade": "*"
 	}
 }

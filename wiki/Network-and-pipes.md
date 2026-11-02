@@ -16,6 +16,11 @@ Every machine has a name. A new one gets `<type>_<n>`, the lowest free number: `
 the box's **Network** view (click a machine; a name field and a Rename button appear, and go away again after Rename or when you click elsewhere) or with `setName` in a program. Names are 1 to 32 letters, digits, `_` or `-`,
 and compared without case. When two networks join and a name exists twice, the newcomer is renamed and every box says so.
 
+To see which machine has which name, look at it: the name shows just below the crosshair. With
+[Jade](https://modrinth.com/mod/jade) installed, Jade's box shows a line "Network name: ..." instead (it can be switched
+off in Jade's plugin settings). A machine that no box has reached yet has no name and shows none. `name_hint=false` in
+the [settings](Settings-and-commands) turns the crosshair line off.
+
 ![The Network view of a box: two Redstone Ports and a sign](images/04-network-view.png)
 
 ## Limits

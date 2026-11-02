@@ -9,12 +9,14 @@ import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 
 import de.knito.billboard.api.BillboardApi;
@@ -23,10 +25,12 @@ import de.knito.billboard.api.impl.BillboardApiMod;
 /**
  * What the library stores on the block entity of every Lua client, so client mods write no NBT for it: the
  * client's name and the player who placed it. Both are saved with the chunk and lost when the machine is broken.
+ * The name is also sent to every player who sees the machine, so the client can show it when one looks at it.
  */
 public final class ClientData {
 	public static final AttachmentType<String> NAME =
-			AttachmentRegistry.create(BillboardApiMod.id("client_name"), builder -> builder.persistent(Codec.STRING));
+			AttachmentRegistry.create(BillboardApiMod.id("client_name"), builder -> builder.persistent(Codec.STRING)
+					.syncWith(ByteBufCodecs.STRING_UTF8, AttachmentSyncPredicate.all()));
 	public static final AttachmentType<UUID> OWNER =
 			AttachmentRegistry.create(BillboardApiMod.id("client_owner"), builder -> builder.persistent(UUIDUtil.CODEC));
 

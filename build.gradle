@@ -17,6 +17,13 @@ repositories {
 			includeGroup("cc.tweaked")
 		}
 	}
+	// Jade, compiled against only: see JadeNames.
+	maven {
+		url = "https://api.modrinth.com/maven"
+		content {
+			includeGroup("maven.modrinth")
+		}
+	}
 }
 
 configurations {
@@ -70,6 +77,9 @@ dependencies {
 	// CC: Tweaked is optional: compiled against for the peripheral bridge, but not needed at runtime.
 	compileOnly("cc.tweaked:cc-tweaked-${project.minecraft_version}-core-api:${project.cc_tweaked_version}") { transitive = false }
 	compileOnly("cc.tweaked:cc-tweaked-${project.minecraft_version}-fabric-api:${project.cc_tweaked_version}") { transitive = false }
+
+	// Jade is optional too: its plugin shows a machine's network name in Jade's box.
+	clientCompileOnly("maven.modrinth:jade:${project.jade_version}") { transitive = false }
 
 }
 

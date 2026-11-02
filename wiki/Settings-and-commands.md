@@ -23,5 +23,6 @@ server's file that counts.
 | `network_max_clients` | 64 | Machines in one network. |
 | `network_max_boxes` | 8 | Lua Boxes in one network. |
 | `network_owner_check` | false | `true`: a box drives only machines placed by its own owner. `false`: any box drives any machine it reaches. |
+| `name_hint` | true | Only for the game, not the server. Looking at a machine of a network shows its name under the crosshair. Off by itself when Jade is installed. |
 
 A file written by version 0.1.0 has `network_owner_check=true` until you change it.

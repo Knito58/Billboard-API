@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+New: see a machine's network name by looking at it, so two renamed ports side by side can be told apart.
+
+- Without any other mod, the name shows just below the crosshair. `name_hint=false` in `billboard_api.properties`
+  turns it off.
+- With Jade installed, Jade's box shows "Network name: ..." instead, for every machine of a network, Billboard Engine
+  and signs included. Jade stays optional.
+- The names are now sent to the players who see the machines. Like before, they are only known after a Lua Box has
+  reached the machine.
 - The Lua Box's **Network** view lists every machine in reach: scroll with the mouse wheel over the list or page with
   the ▲ and ▼ buttons above and below it. Before, only the first six were shown, and the others could not be renamed there.
 - A white-on-red close **X** in the corner of the Lua Box screen.
