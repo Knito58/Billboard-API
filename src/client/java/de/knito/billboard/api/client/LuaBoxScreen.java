@@ -60,6 +60,8 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 	/** The machine picked for renaming, as a block position, or null. */
 	private Long selected;
 	private EditBox nameBox;
+	/** The name field and Rename button are out until a machine is clicked; they go again on Rename or when the field loses focus. */
+	private boolean editing;
 	/** The first machine row shown in the Network view. */
 	private int scroll;
 	private Button pageUp;
@@ -88,6 +90,7 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 		pageDown = null;
 		addRenderableWidget(Button.builder(Component.translatable(showNetwork ? "gui.billboard_api.box.files_view" : "gui.billboard_api.box.network_view"), b -> {
 			showNetwork = !showNetwork;
+			editing = false;
 			rebuildWidgets();
 		}).bounds(leftPos + 60, topPos + 3, 58, 12).build());
 		if (showNetwork) {
@@ -120,7 +123,7 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 		Button rename = Button.builder(Component.translatable("gui.billboard_api.box.rename"), b -> rename())
 				.bounds(leftPos + WIDTH - 72, rowY, 62, 12).build();
 		LuaBoxStatePayload.Client client = selectedClient();
-		boolean editable = canControl && client != null && client.usable();
+		boolean editable = editing && canControl && client != null && client.usable();
 		nameBox.visible = editable;
 		rename.visible = editable;
 		addRenderableWidget(nameBox);
@@ -174,6 +177,15 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 		String name = nameBox.getValue().strip();
 		if (client != null && !name.isEmpty() && !name.equals(client.name())) {
 			ClientPlayNetworking.send(new LuaBoxActionPayload(LuaBoxActionPayload.Action.RENAME, name, client.pos()));
+		}
+		closeEditor();
+	}
+
+	/** Takes the name field and Rename button away until the next click on a machine. */
+	private void closeEditor() {
+		if (editing) {
+			editing = false;
+			rebuildWidgets();
 		}
 	}
 
@@ -231,6 +243,7 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 			if (clientRow >= 0 && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 				LuaBoxStatePayload.Client client = state.network().clients().get(clientRow);
 				selected = client.pos();
+				editing = true;
 				if (nameBox != null) {
 					nameBox.setValue(client.name());
 				}
@@ -240,7 +253,12 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 				}
 				return true;
 			}
-			return super.mouseClicked(event, doubleClick);
+			boolean handled = super.mouseClicked(event, doubleClick);
+			// A click anywhere else took the focus from the name field: put the field away.
+			if (editing && (nameBox == null || !nameBox.isFocused())) {
+				closeEditor();
+			}
+			return handled;
 		}
 		Path folder = localFolder();
 		int row = fileRowAt(event.x(), event.y());
