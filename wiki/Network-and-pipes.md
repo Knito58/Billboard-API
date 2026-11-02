@@ -13,7 +13,7 @@ its **network**. Nothing travels through a pipe; the network is just the blocks 
 ## Names
 
 Every machine has a name. A new one gets `<type>_<n>`, the lowest free number: `sign_1`, `redstone_port_2`. Rename it in
-the box's **Network** view (click a machine) or with `setName` in a program. Names are 1 to 32 letters, digits, `_` or `-`,
+the box's **Network** view (click a machine; a name field and a Rename button appear, and go away again after Rename or when you click elsewhere) or with `setName` in a program. Names are 1 to 32 letters, digits, `_` or `-`,
 and compared without case. When two networks join and a name exists twice, the newcomer is renamed and every box says so.
 
 ![The Network view of a box: two Redstone Ports and a sign](images/04-network-view.png)

@@ -171,6 +171,12 @@ public class LuaBoxBlockEntity extends BlockEntity implements ExtendedMenuProvid
 		}
 	}
 
+	/** Clear Output: forgets the output lines. An error light turns to stopped, as the error is gone from the list. */
+	public void clearOutput() {
+		lines.clear();
+		runnerChanged();
+	}
+
 	public List<Line> lines() {
 		return new ArrayList<>(lines);
 	}
