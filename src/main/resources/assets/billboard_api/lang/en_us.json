@@ -25,7 +25,7 @@
 	"gui.billboard_api.box.name": "New name",
 	"gui.billboard_api.box.rename": "Rename",
 	"tooltip.billboard_api.client_name": "Network name: %s",
-	"config.jade.plugin_billboard_api.client_name": "Billboard API: network name"
+	"config.jade.plugin_billboard_api.client_name": "Billboard API: network name",
 	"gui.billboard_api.box.clear": "Clear Output",
 	"gui.billboard_api.box.clear_tooltip": "Empties the output lines, for everybody who has this box open.",
 	"gui.billboard_api.box.page_up": "Previous machines (or the mouse wheel over the list)",
