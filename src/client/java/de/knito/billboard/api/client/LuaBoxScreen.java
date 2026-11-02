@@ -34,7 +34,8 @@ import de.knito.billboard.api.impl.net.BoxUploadPayload;
  * file manager: the program main.lua and up to 8 more files. There is no editor; programs are written in any
  * text editor. In single player the folder button and a click on a file open them on this computer. The Network
  * button swaps the file list for the machines the box reaches, where a click picks one to rename. A longer machine
- * list scrolls with the mouse wheel or pages with the arrow buttons. Clear Output empties the output lines.
+ * list scrolls with the mouse wheel or pages with the arrow buttons above and below it. Clear Output empties the
+ * output lines.
  */
 public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 	private static final int WIDTH = 256;
@@ -80,7 +81,7 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 		restart.active = canControl;
 		stop.active = canControl;
 		Button clear = addRenderableWidget(Button.builder(Component.translatable("gui.billboard_api.box.clear"), b -> send(LuaBoxActionPayload.Action.CLEAR, ""))
-				.bounds(leftPos + WIDTH - 82, topPos + OUTPUT_Y - 3, 74, 12).build());
+				.bounds(leftPos + 7, topPos + OUTPUT_Y - 3, 74, 12).build());
 		clear.setTooltip(Tooltip.create(Component.translatable("gui.billboard_api.box.clear_tooltip")));
 		clear.active = canControl;
 		pageUp = null;
@@ -113,7 +114,7 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 	private void initNetwork(boolean canControl) {
 		String old = nameBox != null ? nameBox.getValue() : "";
 		int rowY = topPos + FILES_Y + 12 + NETWORK_ROWS * FILE_ROW;
-		nameBox = new EditBox(font, leftPos + 10, rowY, 138, 12, Component.translatable("gui.billboard_api.box.name"));
+		nameBox = new EditBox(font, leftPos + 10, rowY, 168, 12, Component.translatable("gui.billboard_api.box.name"));
 		nameBox.setMaxLength(32);
 		nameBox.setValue(old);
 		Button rename = Button.builder(Component.translatable("gui.billboard_api.box.rename"), b -> rename())
@@ -124,12 +125,12 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 		rename.visible = editable;
 		addRenderableWidget(nameBox);
 		addRenderableWidget(rename);
-		// Page buttons between the name field and Rename, only when the list is longer than the rows.
+		// Page buttons just above and below the list, at its right edge over the scroll bar; only for a long list.
 		if (state != null && state.network().clients().size() > NETWORK_ROWS) {
 			pageUp = addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> scrollBy(-NETWORK_ROWS))
-					.bounds(leftPos + 152, rowY, 14, 12).build());
+					.bounds(leftPos + WIDTH - 21, topPos + FILES_Y - 2, 14, 11).build());
 			pageDown = addRenderableWidget(Button.builder(Component.literal("\u25BC"), b -> scrollBy(NETWORK_ROWS))
-					.bounds(leftPos + 168, rowY, 14, 12).build());
+					.bounds(leftPos + WIDTH - 21, topPos + OUTPUT_Y - 3, 14, 12).build());
 			pageUp.setTooltip(Tooltip.create(Component.translatable("gui.billboard_api.box.page_up")));
 			pageDown.setTooltip(Tooltip.create(Component.translatable("gui.billboard_api.box.page_down")));
 		}
@@ -372,7 +373,6 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 			extractFiles(graphics);
 		}
 
-		graphics.text(font, Component.translatable("gui.billboard_api.box.output"), 8, OUTPUT_Y, LABEL, false);
 		List<LuaBoxStatePayload.Line> lines = state.lines();
 		int first = Math.max(0, lines.size() - OUTPUT_LINES);
 		for (int i = first; i < lines.size(); i++) {
@@ -405,7 +405,8 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 
 	private void extractNetwork(GuiGraphicsExtractor graphics) {
 		List<LuaBoxStatePayload.Client> clients = state.network().clients();
-		graphics.text(font, fit(Component.translatable("gui.billboard_api.box.network", clients.size()).getString(), WIDTH - 16), 8, FILES_Y, LABEL, false);
+		int labelWidth = clients.size() > NETWORK_ROWS ? WIDTH - 32 : WIDTH - 16; // room for the up button
+		graphics.text(font, fit(Component.translatable("gui.billboard_api.box.network", clients.size()).getString(), labelWidth), 8, FILES_Y, LABEL, false);
 		int rowY = FILES_Y + 13;
 		if (!state.network().problem().isEmpty()) {
 			graphics.text(font, fit(state.network().problem(), WIDTH - 24), 12, rowY, 0xFFA02020, false);
@@ -416,7 +417,7 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 		}
 		boolean scrolls = clients.size() > NETWORK_ROWS;
 		// The type column ends left of the scroll bar when there is one.
-		int typeRight = WIDTH - (scrolls ? 16 : 12);
+		int typeRight = WIDTH - (scrolls ? 19 : 12);
 		for (int i = 0; i < Math.min(clients.size() - scroll, NETWORK_ROWS); i++) {
 			LuaBoxStatePayload.Client client = clients.get(scroll + i);
 			int y = rowY + i * FILE_ROW;
@@ -428,13 +429,13 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 			graphics.text(font, shown, typeRight - font.width(shown), y, 0xFF707070, false);
 		}
 		if (scrolls) {
-			// A thin scroll bar beside the rows: the thumb shows which part of the list is in view.
+			// A thin scroll bar beside the rows, centred under the page buttons: the thumb shows which part of the list is in view.
 			int top = FILES_Y + 12;
 			int track = NETWORK_ROWS * FILE_ROW;
 			int thumb = Math.max(6, track * NETWORK_ROWS / clients.size());
 			int thumbY = top + (track - thumb) * scroll / maxScroll();
-			graphics.fill(WIDTH - 12, top, WIDTH - 9, top + track, 0xFFB0B0B0);
-			graphics.fill(WIDTH - 12, thumbY, WIDTH - 9, thumbY + thumb, DARK);
+			graphics.fill(WIDTH - 15, top, WIDTH - 12, top + track, 0xFFB0B0B0);
+			graphics.fill(WIDTH - 15, thumbY, WIDTH - 12, thumbY + thumb, DARK);
 		}
 	}
 

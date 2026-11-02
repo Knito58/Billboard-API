@@ -9,11 +9,13 @@ Right-click the box.
 
 - **Files**: `main.lua` and up to 8 more files. Drop files from your file manager onto the screen.
   In single player the **Folder** button opens the box's folder, and a click on a file opens it in your editor.
-- **Output**: what the program prints, and its errors. **Clear Output** empties it, for example between two runs.
+- **Output** (the dark field): what the program prints, and its errors. **Clear Output** above it empties it, for
+  example between two runs.
 - **Restart** and **Stop** for the program. Everybody may press them and Clear Output, unless the server allows only
   operators.
 - **Network** swaps the file list for the machines the box reaches, see [Network and pipes](Network-and-pipes).
-  When more machines are in reach than fit, scroll the list with the mouse wheel or page with the ▲ and ▼ buttons.
+  When more machines are in reach than fit, scroll the list with the mouse wheel or page with the ▲ and ▼
+  buttons above and below it.
 
 Only the owner of a box (the player who placed it) and operators may add or remove files.
 
