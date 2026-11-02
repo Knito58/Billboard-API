@@ -9,12 +9,12 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import de.knito.billboard.api.impl.BillboardApiMod;
 
 /**
- * A button in the Lua Box screen: Restart, Stop, remove the file with the given name, or give the client at target
- * (a block position as a long) the given name.
+ * A button in the Lua Box screen: Restart, Stop, remove the file with the given name, give the client at target
+ * (a block position as a long) the given name, or clear the output lines.
  */
 public record LuaBoxActionPayload(Action action, String name, long target) implements CustomPacketPayload {
 	public enum Action {
-		RESTART, STOP, DELETE, RENAME
+		RESTART, STOP, DELETE, RENAME, CLEAR // new actions go at the end: the ordinal is sent
 	}
 
 	public LuaBoxActionPayload(Action action, String name) {

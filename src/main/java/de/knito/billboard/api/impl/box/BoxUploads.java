@@ -53,7 +53,7 @@ public final class BoxUploads {
 		return box;
 	}
 
-	/** Restart and Stop are for everybody (unless boxes_ops_only); removing a file only for those who may edit. */
+	/** Restart, Stop, Clear Output and renaming are for everybody (unless boxes_ops_only); removing a file only for those who may edit. */
 	public static void action(ServerPlayer player, LuaBoxActionPayload payload) {
 		LuaBoxBlockEntity box = payload.action() == LuaBoxActionPayload.Action.DELETE ? editableBox(player) : openBox(player);
 		if (box == null) {
@@ -74,6 +74,13 @@ public final class BoxUploads {
 					box.restart();
 				} else {
 					box.stop();
+				}
+			}
+			case CLEAR -> {
+				if (!box.canControl(player)) {
+					box.print(player.getName().getString() + " may not clear the output of this Lua Box (server: operators only).", true);
+				} else {
+					box.clearOutput();
 				}
 			}
 			case DELETE -> box.deleteFile(payload.name());

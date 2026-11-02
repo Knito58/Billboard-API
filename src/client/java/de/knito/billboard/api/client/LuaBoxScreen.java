@@ -33,7 +33,9 @@ import de.knito.billboard.api.impl.net.BoxUploadPayload;
  * The Lua Box screen: its files, its output lines, Restart and Stop. Files are dropped onto it from the
  * file manager: the program main.lua and up to 8 more files. There is no editor; programs are written in any
  * text editor. In single player the folder button and a click on a file open them on this computer. The Network
- * button swaps the file list for the machines the box reaches, where a click picks one to rename.
+ * button swaps the file list for the machines the box reaches, where a click picks one to rename. A longer machine
+ * list scrolls with the mouse wheel or pages with the arrow buttons above and below it. Clear Output empties the
+ * output lines.
  */
 public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 	private static final int WIDTH = 256;
@@ -58,6 +60,12 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 	/** The machine picked for renaming, as a block position, or null. */
 	private Long selected;
 	private EditBox nameBox;
+	/** The name field and Rename button are out until a machine is clicked; they go again on Rename or when the field loses focus. */
+	private boolean editing;
+	/** The first machine row shown in the Network view. */
+	private int scroll;
+	private Button pageUp;
+	private Button pageDown;
 
 	public LuaBoxScreen(LuaBoxMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title, WIDTH, HEIGHT);
@@ -74,8 +82,19 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 				.bounds(leftPos + 82, topPos + HEIGHT - 22, 70, 18).build());
 		restart.active = canControl;
 		stop.active = canControl;
+		// The close X: this button only takes the click, extractLabels paints the white X on red over it.
+		Button close = addRenderableWidget(Button.builder(Component.empty(), b -> onClose())
+				.bounds(leftPos + WIDTH - 15, topPos + 3, 12, 12).build());
+		close.setTooltip(Tooltip.create(Component.translatable("gui.billboard_api.box.close")));
+		Button clear = addRenderableWidget(Button.builder(Component.translatable("gui.billboard_api.box.clear"), b -> send(LuaBoxActionPayload.Action.CLEAR, ""))
+				.bounds(leftPos + 7, topPos + OUTPUT_Y - 3, 74, 12).build());
+		clear.setTooltip(Tooltip.create(Component.translatable("gui.billboard_api.box.clear_tooltip")));
+		clear.active = canControl;
+		pageUp = null;
+		pageDown = null;
 		addRenderableWidget(Button.builder(Component.translatable(showNetwork ? "gui.billboard_api.box.files_view" : "gui.billboard_api.box.network_view"), b -> {
 			showNetwork = !showNetwork;
+			editing = false;
 			rebuildWidgets();
 		}).bounds(leftPos + 60, topPos + 3, 58, 12).build());
 		if (showNetwork) {
@@ -101,17 +120,53 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 
 	private void initNetwork(boolean canControl) {
 		String old = nameBox != null ? nameBox.getValue() : "";
-		nameBox = new EditBox(font, leftPos + 10, topPos + FILES_Y + 12 + NETWORK_ROWS * FILE_ROW, 168, 12, Component.translatable("gui.billboard_api.box.name"));
+		int rowY = topPos + FILES_Y + 12 + NETWORK_ROWS * FILE_ROW;
+		nameBox = new EditBox(font, leftPos + 10, rowY, 168, 12, Component.translatable("gui.billboard_api.box.name"));
 		nameBox.setMaxLength(32);
 		nameBox.setValue(old);
 		Button rename = Button.builder(Component.translatable("gui.billboard_api.box.rename"), b -> rename())
-				.bounds(leftPos + WIDTH - 72, topPos + FILES_Y + 12 + NETWORK_ROWS * FILE_ROW, 62, 12).build();
+				.bounds(leftPos + WIDTH - 72, rowY, 62, 12).build();
 		LuaBoxStatePayload.Client client = selectedClient();
-		boolean editable = canControl && client != null && client.usable();
+		boolean editable = editing && canControl && client != null && client.usable();
 		nameBox.visible = editable;
 		rename.visible = editable;
 		addRenderableWidget(nameBox);
 		addRenderableWidget(rename);
+		// Page buttons just above and below the list, at its right edge over the scroll bar; only for a long list.
+		if (state != null && state.network().clients().size() > NETWORK_ROWS) {
+			pageUp = addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> scrollBy(-NETWORK_ROWS))
+					.bounds(leftPos + WIDTH - 21, topPos + FILES_Y - 2, 14, 11).build());
+			pageDown = addRenderableWidget(Button.builder(Component.literal("\u25BC"), b -> scrollBy(NETWORK_ROWS))
+					.bounds(leftPos + WIDTH - 21, topPos + OUTPUT_Y - 3, 14, 12).build());
+			pageUp.setTooltip(Tooltip.create(Component.translatable("gui.billboard_api.box.page_up")));
+			pageDown.setTooltip(Tooltip.create(Component.translatable("gui.billboard_api.box.page_down")));
+		}
+		scrollBy(0);
+	}
+
+	private int maxScroll() {
+		return state == null ? 0 : Math.max(0, state.network().clients().size() - NETWORK_ROWS);
+	}
+
+	/** Moves the machine list by rows (negative: up), kept inside the list. */
+	private void scrollBy(int rows) {
+		scroll = Math.clamp(scroll + rows, 0, maxScroll());
+		if (pageUp != null) {
+			pageUp.active = scroll > 0;
+		}
+		if (pageDown != null) {
+			pageDown.active = scroll < maxScroll();
+		}
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (showNetwork && scrollY != 0 && mouseX >= leftPos + 7 && mouseX < leftPos + WIDTH - 7
+				&& mouseY >= topPos + FILES_Y + 10 && mouseY < topPos + FILES_Y + 12 + MAX_FILE_ROWS * FILE_ROW) {
+			scrollBy(scrollY > 0 ? -1 : 1);
+			return true;
+		}
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	private LuaBoxStatePayload.Client selectedClient() {
@@ -127,16 +182,25 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 		if (client != null && !name.isEmpty() && !name.equals(client.name())) {
 			ClientPlayNetworking.send(new LuaBoxActionPayload(LuaBoxActionPayload.Action.RENAME, name, client.pos()));
 		}
+		closeEditor();
 	}
 
-	/** The machine row under the mouse, or -1. */
+	/** Takes the name field and Rename button away until the next click on a machine. */
+	private void closeEditor() {
+		if (editing) {
+			editing = false;
+			rebuildWidgets();
+		}
+	}
+
+	/** The machine under the mouse, as an index into the whole list, or -1. */
 	private int clientRowAt(double mouseX, double mouseY) {
 		if (state == null || mouseX < leftPos + 8 || mouseX >= leftPos + WIDTH - 8) {
 			return -1;
 		}
 		double y = mouseY - topPos - FILES_Y - 12;
 		int row = y < 0 ? -1 : (int) (y / FILE_ROW);
-		return row >= 0 && row < Math.min(state.network().clients().size(), NETWORK_ROWS) ? row : -1;
+		return row >= 0 && row < NETWORK_ROWS && scroll + row < state.network().clients().size() ? scroll + row : -1;
 	}
 
 	@Override
@@ -183,6 +247,7 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 			if (clientRow >= 0 && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 				LuaBoxStatePayload.Client client = state.network().clients().get(clientRow);
 				selected = client.pos();
+				editing = true;
 				if (nameBox != null) {
 					nameBox.setValue(client.name());
 				}
@@ -192,7 +257,13 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 				}
 				return true;
 			}
-			return super.mouseClicked(event, doubleClick);
+			boolean handled = super.mouseClicked(event, doubleClick);
+			// A click anywhere else puts the name field away. A click on empty window area hits no widget and so does
+			// not move the focus by itself; a click on a button does move it.
+			if (editing && (!handled || nameBox == null || !nameBox.isFocused())) {
+				closeEditor();
+			}
+			return handled;
 		}
 		Path folder = localFolder();
 		int row = fileRowAt(event.x(), event.y());
@@ -217,6 +288,8 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 		note = Component.empty();
 		if (filesChanged) {
 			rebuildWidgets();
+		} else {
+			scrollBy(0);
 		}
 	}
 
@@ -307,6 +380,7 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 	@Override
 	protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
 		graphics.text(font, title, 8, 6, LABEL, false);
+		extractCloseX(graphics, xm - leftPos, ym - topPos);
 		if (state == null) {
 			return;
 		}
@@ -315,7 +389,7 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 			case "Error" -> 0xFFA02020;
 			default -> 0xFF806000;
 		};
-		graphics.text(font, state.status(), WIDTH - 8 - font.width(state.status()), 6, statusColor, false);
+		graphics.text(font, state.status(), WIDTH - 20 - font.width(state.status()), 6, statusColor, false);
 
 		if (showNetwork) {
 			extractNetwork(graphics);
@@ -323,7 +397,6 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 			extractFiles(graphics);
 		}
 
-		graphics.text(font, Component.translatable("gui.billboard_api.box.output"), 8, OUTPUT_Y, LABEL, false);
 		List<LuaBoxStatePayload.Line> lines = state.lines();
 		int first = Math.max(0, lines.size() - OUTPUT_LINES);
 		for (int i = first; i < lines.size(); i++) {
@@ -334,6 +407,16 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 		if (!note.getString().isEmpty()) {
 			graphics.text(font, fit(note.getString(), WIDTH - 164), 158, HEIGHT - 17, noteError ? 0xFFA02020 : 0xFF207020, false);
 		}
+	}
+
+	/** The close X: white on red, the same in all Billboard mods. */
+	private void extractCloseX(GuiGraphicsExtractor graphics, int mx, int my) {
+		int x = WIDTH - 15;
+		int y = 3;
+		boolean hover = mx >= x && mx < x + 12 && my >= y && my < y + 12;
+		graphics.fill(x, y, x + 12, y + 12, hover ? 0xFFE04040 : 0xFFB02020);
+		graphics.outline(x, y, 12, 12, 0xFF601010);
+		graphics.text(font, "x", x + 6 - font.width("x") / 2, y + 2, 0xFFFFFFFF, false);
 	}
 
 	private void extractFiles(GuiGraphicsExtractor graphics) {
@@ -356,7 +439,8 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 
 	private void extractNetwork(GuiGraphicsExtractor graphics) {
 		List<LuaBoxStatePayload.Client> clients = state.network().clients();
-		graphics.text(font, fit(Component.translatable("gui.billboard_api.box.network", clients.size()).getString(), WIDTH - 16), 8, FILES_Y, LABEL, false);
+		int labelWidth = clients.size() > NETWORK_ROWS ? WIDTH - 32 : WIDTH - 16; // room for the up button
+		graphics.text(font, fit(Component.translatable("gui.billboard_api.box.network", clients.size()).getString(), labelWidth), 8, FILES_Y, LABEL, false);
 		int rowY = FILES_Y + 13;
 		if (!state.network().problem().isEmpty()) {
 			graphics.text(font, fit(state.network().problem(), WIDTH - 24), 12, rowY, 0xFFA02020, false);
@@ -365,19 +449,27 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 		if (clients.isEmpty()) {
 			graphics.text(font, fit(Component.translatable("gui.billboard_api.box.no_clients").getString(), WIDTH - 24), 12, rowY, 0xFF707070, false);
 		}
-		for (int i = 0; i < Math.min(clients.size(), NETWORK_ROWS); i++) {
-			LuaBoxStatePayload.Client client = clients.get(i);
+		boolean scrolls = clients.size() > NETWORK_ROWS;
+		// The type column ends left of the scroll bar when there is one.
+		int typeRight = WIDTH - (scrolls ? 19 : 12);
+		for (int i = 0; i < Math.min(clients.size() - scroll, NETWORK_ROWS); i++) {
+			LuaBoxStatePayload.Client client = clients.get(scroll + i);
 			int y = rowY + i * FILE_ROW;
 			boolean picked = selected != null && selected == client.pos();
 			int color = !client.usable() ? 0xFF909090 : picked ? 0xFF1030C0 : LABEL;
 			graphics.text(font, fit((picked ? "> " : "") + client.name(), 110), 12, y, color, false);
 			String type = client.usable() ? client.type() : Component.translatable("gui.billboard_api.box.other_owner", client.type()).getString();
-			String shown = fit(type, WIDTH - 140);
-			graphics.text(font, shown, WIDTH - 12 - font.width(shown), y, 0xFF707070, false);
+			String shown = fit(type, typeRight - 128);
+			graphics.text(font, shown, typeRight - font.width(shown), y, 0xFF707070, false);
 		}
-		if (clients.size() > NETWORK_ROWS) {
-			String more = "+" + (clients.size() - NETWORK_ROWS);
-			graphics.text(font, more, WIDTH - 12 - font.width(more), FILES_Y + 13 + NETWORK_ROWS * FILE_ROW, 0xFF707070, false);
+		if (scrolls) {
+			// A thin scroll bar beside the rows, centred under the page buttons: the thumb shows which part of the list is in view.
+			int top = FILES_Y + 12;
+			int track = NETWORK_ROWS * FILE_ROW;
+			int thumb = Math.max(6, track * NETWORK_ROWS / clients.size());
+			int thumbY = top + (track - thumb) * scroll / maxScroll();
+			graphics.fill(WIDTH - 15, top, WIDTH - 12, top + track, 0xFFB0B0B0);
+			graphics.fill(WIDTH - 15, thumbY, WIDTH - 12, thumbY + thumb, DARK);
 		}
 	}
 
