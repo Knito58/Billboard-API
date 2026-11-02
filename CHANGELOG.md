@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- The Lua Box's **Network** view lists every machine in reach: scroll with the mouse wheel over the list or page with
+  the ▲ and ▼ buttons. Before, only the first six were shown, and the others could not be renamed there.
+- New **Clear Output** button in the Lua Box screen. It empties the output lines for everybody who has the box open.
+
 ## 0.2.0
 
 New: **Redstone Port**, the bridge between Lua and vanilla redstone.

@@ -24,5 +24,9 @@
 	"gui.billboard_api.box.no_clients": "None. Put a machine against the box or a pipe.",
 	"gui.billboard_api.box.other_owner": "%s, not yours",
 	"gui.billboard_api.box.name": "New name",
-	"gui.billboard_api.box.rename": "Rename"
+	"gui.billboard_api.box.rename": "Rename",
+	"gui.billboard_api.box.clear": "Clear Output",
+	"gui.billboard_api.box.clear_tooltip": "Empties the output lines, for everybody who has this box open.",
+	"gui.billboard_api.box.page_up": "Previous machines (or the mouse wheel over the list)",
+	"gui.billboard_api.box.page_down": "More machines (or the mouse wheel over the list)"
 }
