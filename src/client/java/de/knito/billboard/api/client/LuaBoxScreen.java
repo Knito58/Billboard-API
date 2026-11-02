@@ -254,8 +254,9 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 				return true;
 			}
 			boolean handled = super.mouseClicked(event, doubleClick);
-			// A click anywhere else took the focus from the name field: put the field away.
-			if (editing && (nameBox == null || !nameBox.isFocused())) {
+			// A click anywhere else puts the name field away. A click on empty window area hits no widget and so does
+			// not move the focus by itself; a click on a button does move it.
+			if (editing && (!handled || nameBox == null || !nameBox.isFocused())) {
 				closeEditor();
 			}
 			return handled;
