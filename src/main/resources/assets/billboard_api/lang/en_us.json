@@ -24,5 +24,7 @@
 	"gui.billboard_api.box.no_clients": "None. Put a machine against the box or a pipe.",
 	"gui.billboard_api.box.other_owner": "%s, not yours",
 	"gui.billboard_api.box.name": "New name",
-	"gui.billboard_api.box.rename": "Rename"
+	"gui.billboard_api.box.rename": "Rename",
+	"tooltip.billboard_api.client_name": "Network name: %s",
+	"config.jade.plugin_billboard_api.client_name": "Billboard API: network name"
 }

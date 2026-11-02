@@ -10,11 +10,12 @@ import de.knito.billboard.api.impl.ModBlocks;
 import de.knito.billboard.api.impl.ModMenus;
 import de.knito.billboard.api.impl.net.LuaBoxStatePayload;
 
-/** The library's client side: the Lua Box screen and the look of a camouflaged redstone port. */
+/** The library's client side: the Lua Box screen, the look of a camouflaged redstone port, and the name hint. */
 public class BillboardApiClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		MenuScreens.register(ModMenus.LUA_BOX, LuaBoxScreen::new);
+		NameHint.register();
 
 		ModelLoadingPlugin.register(plugin -> plugin.modifyBlockModelAfterBake().register(
 				(model, context) -> context.state().is(ModBlocks.REDSTONE_PORT) ? new CamouflageModel(model) : model));

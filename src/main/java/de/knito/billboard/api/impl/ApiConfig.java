@@ -37,6 +37,7 @@ public final class ApiConfig {
 	private static int networkMaxClients = 64;
 	private static int networkMaxBoxes = 8;
 	private static boolean networkOwnerCheck = false;
+	private static boolean nameHint = true;
 
 	private ApiConfig() {
 	}
@@ -97,6 +98,11 @@ public final class ApiConfig {
 		return networkOwnerCheck;
 	}
 
+	/** Client side: show a machine's network name under the crosshair. Jade, if installed, shows it instead. */
+	public static boolean nameHint() {
+		return nameHint;
+	}
+
 	static void load() {
 		Path dir = FabricLoader.getInstance().getConfigDir();
 		Path file = dir.resolve(FILE);
@@ -127,8 +133,9 @@ public final class ApiConfig {
 		networkMaxClients = read(properties, "network_max_clients", networkMaxClients, 1, 1024);
 		networkMaxBoxes = read(properties, "network_max_boxes", networkMaxBoxes, 1, 64);
 		networkOwnerCheck = readBoolean(properties, "network_owner_check", networkOwnerCheck);
+		nameHint = readBoolean(properties, "name_hint", nameHint);
 		// A file from an older version lacks the newer keys: write it again with the values just read.
-		if (fresh || !properties.containsKey("network_max_pipes")) {
+		if (fresh || !properties.containsKey("name_hint")) {
 			write(file);
 		}
 	}
@@ -213,9 +220,13 @@ public final class ApiConfig {
 						# false (the default): any box drives any machine it reaches. true: a box drives only machines
 						# placed by its own owner (machines from before get the owner of the first box that reaches them).
 						network_owner_check=%b
+
+						# Only for the game, not the server: looking at a machine of a network shows its name under the
+						# crosshair. With Jade installed, Jade's box shows the name instead.
+						name_hint=%b
 						""".formatted(boxesEnabled, boxesOpsOnly, boxMillisPerTick, boxMaxSecondsWithoutSleep, boxTooBusySeconds,
 						LIMIT_FILE_KB, boxMaxLuaKb, boxMaxFiles, boxMaxFileKb, String.join(",", boxFileTypes),
-						networkMaxPipes, networkMaxClients, networkMaxBoxes, networkOwnerCheck));
+						networkMaxPipes, networkMaxClients, networkMaxBoxes, networkOwnerCheck, nameHint));
 			}
 		} catch (IOException e) {
 			BillboardApiMod.LOGGER.warn("Could not write {}", file, e);
