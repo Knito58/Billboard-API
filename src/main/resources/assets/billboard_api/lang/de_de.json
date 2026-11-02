@@ -27,5 +27,6 @@
 	"gui.billboard_api.box.clear": "Ausgabe leeren",
 	"gui.billboard_api.box.clear_tooltip": "Leert die Ausgabezeilen, für alle, die diese Box offen haben.",
 	"gui.billboard_api.box.page_up": "Vorherige Maschinen (oder Mausrad über der Liste)",
-	"gui.billboard_api.box.page_down": "Weitere Maschinen (oder Mausrad über der Liste)"
+	"gui.billboard_api.box.page_down": "Weitere Maschinen (oder Mausrad über der Liste)",
+	"gui.billboard_api.box.close": "Schließen"
 }

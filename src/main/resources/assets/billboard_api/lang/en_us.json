@@ -27,5 +27,6 @@
 	"gui.billboard_api.box.clear": "Clear Output",
 	"gui.billboard_api.box.clear_tooltip": "Empties the output lines, for everybody who has this box open.",
 	"gui.billboard_api.box.page_up": "Previous machines (or the mouse wheel over the list)",
-	"gui.billboard_api.box.page_down": "More machines (or the mouse wheel over the list)"
+	"gui.billboard_api.box.page_down": "More machines (or the mouse wheel over the list)",
+	"gui.billboard_api.box.close": "Close"
 }

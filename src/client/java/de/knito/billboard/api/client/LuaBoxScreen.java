@@ -82,6 +82,10 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 				.bounds(leftPos + 82, topPos + HEIGHT - 22, 70, 18).build());
 		restart.active = canControl;
 		stop.active = canControl;
+		// The close X: this button only takes the click, extractLabels paints the white X on red over it.
+		Button close = addRenderableWidget(Button.builder(Component.empty(), b -> onClose())
+				.bounds(leftPos + WIDTH - 15, topPos + 3, 12, 12).build());
+		close.setTooltip(Tooltip.create(Component.translatable("gui.billboard_api.box.close")));
 		Button clear = addRenderableWidget(Button.builder(Component.translatable("gui.billboard_api.box.clear"), b -> send(LuaBoxActionPayload.Action.CLEAR, ""))
 				.bounds(leftPos + 7, topPos + OUTPUT_Y - 3, 74, 12).build());
 		clear.setTooltip(Tooltip.create(Component.translatable("gui.billboard_api.box.clear_tooltip")));
@@ -376,6 +380,7 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 	@Override
 	protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
 		graphics.text(font, title, 8, 6, LABEL, false);
+		extractCloseX(graphics, xm - leftPos, ym - topPos);
 		if (state == null) {
 			return;
 		}
@@ -384,7 +389,7 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 			case "Error" -> 0xFFA02020;
 			default -> 0xFF806000;
 		};
-		graphics.text(font, state.status(), WIDTH - 8 - font.width(state.status()), 6, statusColor, false);
+		graphics.text(font, state.status(), WIDTH - 20 - font.width(state.status()), 6, statusColor, false);
 
 		if (showNetwork) {
 			extractNetwork(graphics);
@@ -402,6 +407,16 @@ public class LuaBoxScreen extends AbstractContainerScreen<LuaBoxMenu> {
 		if (!note.getString().isEmpty()) {
 			graphics.text(font, fit(note.getString(), WIDTH - 164), 158, HEIGHT - 17, noteError ? 0xFFA02020 : 0xFF207020, false);
 		}
+	}
+
+	/** The close X: white on red, the same in all Billboard mods. */
+	private void extractCloseX(GuiGraphicsExtractor graphics, int mx, int my) {
+		int x = WIDTH - 15;
+		int y = 3;
+		boolean hover = mx >= x && mx < x + 12 && my >= y && my < y + 12;
+		graphics.fill(x, y, x + 12, y + 12, hover ? 0xFFE04040 : 0xFFB02020);
+		graphics.outline(x, y, 12, 12, 0xFF601010);
+		graphics.text(font, "x", x + 6 - font.width("x") / 2, y + 2, 0xFFFFFFFF, false);
 	}
 
 	private void extractFiles(GuiGraphicsExtractor graphics) {
