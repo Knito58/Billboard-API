@@ -1,0 +1,38 @@
+# Zips the Bag_of_scripts folder and attaches Bag_of_scripts.zip to a GitHub release.
+# Called by the Release workflow, or by hand on the Actions tab with a tag such as v0.3.0
+# and pick the branch main in "Use workflow from" (that only uploads the zip, taken from that branch;
+# it does not touch the jar or CurseForge).
+name: Bag of scripts
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach the zip to, e.g. v0.3.0"
+        required: true
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Zip and upload
+        env:
+          TAG: ${{ inputs.tag }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ ! -d Bag_of_scripts ]; then
+            echo "::error::$TAG has no Bag_of_scripts folder. Run the workflow from a branch that has it."
+            exit 1
+          fi
+          zip -r Bag_of_scripts.zip Bag_of_scripts
+          gh release upload "$TAG" Bag_of_scripts.zip --clobber
