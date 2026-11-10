@@ -9,6 +9,7 @@ Used by [Billboard Engine](https://github.com/Knito58/billboard) and, optionally
 [Typestones](https://github.com/Knito58/Typestones).
 
 Documentation is in the [wiki](https://github.com/Knito58/Billboard-API/wiki) (the `wiki/` folder of this repository).
+Example programs: the [`Bag_of_scripts`](Bag_of_scripts) folder (also attached to every release as `Bag_of_scripts.zip`).
 
 ## For Lua programs
 

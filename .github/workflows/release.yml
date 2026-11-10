@@ -52,3 +52,9 @@ jobs:
     with:
       tag: v${{ needs.release.outputs.version }}
     secrets: inherit
+
+  bag_of_scripts:
+    needs: release
+    uses: ./.github/workflows/bag-of-scripts.yml
+    with:
+      tag: v${{ needs.release.outputs.version }}
