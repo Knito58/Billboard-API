@@ -2,6 +2,7 @@
   "values": [
     "billboard_api:lua_box",
     "billboard_api:data_pipe",
-    "billboard_api:redstone_port"
+    "billboard_api:redstone_port",
+    "billboard_api:inventory_port"
   ]
 }

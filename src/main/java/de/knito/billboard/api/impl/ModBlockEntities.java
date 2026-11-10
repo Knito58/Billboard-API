@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 
 import de.knito.billboard.api.impl.box.LuaBoxBlockEntity;
+import de.knito.billboard.api.impl.port.InventoryPortBlockEntity;
 import de.knito.billboard.api.impl.port.RedstonePortBlockEntity;
 
 public class ModBlockEntities {
@@ -20,6 +21,12 @@ public class ModBlockEntities {
 			BuiltInRegistries.BLOCK_ENTITY_TYPE,
 			BillboardApiMod.id("redstone_port"),
 			FabricBlockEntityTypeBuilder.create(RedstonePortBlockEntity::new, ModBlocks.REDSTONE_PORT).build()
+	);
+
+	public static final BlockEntityType<InventoryPortBlockEntity> INVENTORY_PORT = Registry.register(
+			BuiltInRegistries.BLOCK_ENTITY_TYPE,
+			BillboardApiMod.id("inventory_port"),
+			FabricBlockEntityTypeBuilder.create(InventoryPortBlockEntity::new, ModBlocks.INVENTORY_PORT).build()
 	);
 
 	public static void initialize() {

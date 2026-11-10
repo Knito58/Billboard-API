@@ -17,6 +17,7 @@ import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 
 import de.knito.billboard.api.impl.box.LuaBoxBlock;
 import de.knito.billboard.api.impl.pipe.DataPipeBlock;
+import de.knito.billboard.api.impl.port.InventoryPortBlock;
 import de.knito.billboard.api.impl.port.RedstonePortBlock;
 
 public class ModBlocks {
@@ -38,6 +39,12 @@ public class ModBlocks {
 			BlockBehaviour.Properties.of().strength(0.5f).sound(SoundType.WOOD)
 	);
 
+	public static final Block INVENTORY_PORT = register(
+			"inventory_port",
+			InventoryPortBlock::new,
+			BlockBehaviour.Properties.of().strength(0.5f).sound(SoundType.WOOD)
+	);
+
 	private static Block register(String name, Function<BlockBehaviour.Properties, Block> blockFactory, BlockBehaviour.Properties properties) {
 		ResourceKey<Block> blockKey = ResourceKey.create(Registries.BLOCK, BillboardApiMod.id(name));
 		Block block = Registry.register(BuiltInRegistries.BLOCK, blockKey, blockFactory.apply(properties.setId(blockKey)));
@@ -53,6 +60,7 @@ public class ModBlocks {
 			creativeTab.accept(LUA_BOX.asItem());
 			creativeTab.accept(DATA_PIPE.asItem());
 			creativeTab.accept(REDSTONE_PORT.asItem());
+			creativeTab.accept(INVENTORY_PORT.asItem());
 		});
 	}
 }

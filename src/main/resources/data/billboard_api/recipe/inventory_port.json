@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    "billboard_api:data_pipe",
+    "minecraft:hopper"
+  ],
+  "result": {
+    "id": "billboard_api:inventory_port",
+    "count": 1
+  }
+}

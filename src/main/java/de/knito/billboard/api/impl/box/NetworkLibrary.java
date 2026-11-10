@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 
 import de.knito.billboard.api.LuaArgs;
 import de.knito.billboard.api.LuaCaller;
+import de.knito.billboard.api.LuaClient;
 import de.knito.billboard.api.LuaException;
 import de.knito.billboard.api.LuaMethod;
 import de.knito.billboard.api.LuaMethods;
@@ -67,6 +68,23 @@ final class NetworkLibrary {
 		@Override
 		public Path file(String name) {
 			return box.file(name);
+		}
+
+		@Override
+		public LuaClient client(String name) {
+			if (closed) {
+				return null;
+			}
+			Network network = box.network().get();
+			if (network.problem() != null) {
+				return null;
+			}
+			for (Network.Member member : network.members()) {
+				if (member.usable() && Network.lower(member.name()).equals(Network.lower(name))) {
+					return member.client();
+				}
+			}
+			return null;
 		}
 
 		@Override

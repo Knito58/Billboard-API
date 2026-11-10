@@ -3,10 +3,10 @@ its **network**. Nothing travels through a pipe; the network is just the blocks 
 
 ## Data Pipes
 
-- Pipes join by themselves: every pipe, box, Redstone Port and machine next to them.
+- Pipes join by themselves: every pipe, box, Redstone Port, Inventory Port and machine next to them.
 - To keep two networks apart, **sneak-click** a pipe's arm (or the side you want) with an empty hand. That side is
   switched off; sneak-click again to switch it on.
-- A [Redstone Port](Redstone-Port) joins the network on all six sides, like a pipe, so it can sit inside a run of pipes.
+- A [Redstone Port](Redstone-Port) joins the network on all six sides, like a pipe, so it can sit inside a run of pipes. The [Inventory Port](Inventory-Port) does the same.
 
 ![Box, port, pipe, port and sign in one network](images/02-demo-1-piston-in.jpg)
 

@@ -73,3 +73,8 @@ of the sign; the default is the front.
 
 `claim()`, `release()`, `isClaimed()`, `setOutput(side, level)`, `getOutput(side)`, `getInput(side)` and
 `getBlock(side)`: see [Redstone Port](Redstone-Port).
+
+## Inventory Port
+
+`claim()`, `release()`, `isClaimed()`, `hasInventory(side)`, `size(side)`, `list(side)`, `getItem(side, slot)` and
+`move(...)`: see [Inventory Port](Inventory-Port).

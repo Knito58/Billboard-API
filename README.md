@@ -32,6 +32,16 @@ print(port.getBlock("up").properties.extended)   -- name and block state of the 
 Right-click a port with a block to make it look like that block (the item is not used up); sneak-click it with an
 empty hand to take the look off. Only the look is copied.
 
+An Inventory Port (a Data Pipe and a hopper, shapeless) reaches the chests, barrels and modded storage next to it
+(anything with Fabric Transfer API storage, Colossal Chests and Extended Drawers included):
+
+```lua
+local from, to = network.findByName("inventory_port_1"), network.findByName("inventory_port_2")
+from.claim(); to.claim()
+print(from.list("west")[1].name)                                         -- what is in the first filled slot
+print(from.move("west", to.getName(), "east", "minecraft:cobblestone"))  -- items moved, 64 at most unless a limit is given
+```
+
 A program claims a port with `claim()` before it sets a signal (`setOutput` is an error without it). As on the
 other machines, `claim()` gives true, or false and who holds it; `release()` gives true, or false if the program did
 not hold it; `isClaimed()` gives false, or true and who holds it. A port is also let go when its program ends.
