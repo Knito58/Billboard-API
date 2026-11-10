@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0
 
 New: **Inventory Port**, the bridge between Lua and inventories.
 
@@ -13,7 +13,6 @@ New: **Inventory Port**, the bridge between Lua and inventories.
 - Moving needs the claim of every port it goes through: `claim()`, `release()` and `isClaimed()` work as on the
   other machines. Reading needs no claim.
 - New in the library for mod authors: `LuaCaller.client(name)` finds another machine of the box's network by name.
-
 
 New: see a machine's network name by looking at it, so two renamed ports side by side can be told apart.
 
