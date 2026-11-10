@@ -5,6 +5,7 @@
 - [Lua Box](Lua-Box)
 - [Network and pipes](Network-and-pipes)
 - [Redstone Port](Redstone-Port)
+- [Inventory Port](Inventory-Port)
 
 **Reference**
 - [Lua reference](Lua-reference)

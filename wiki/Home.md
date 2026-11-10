@@ -7,17 +7,19 @@ program, and **Data Pipes** join it to the machines it drives.
 - **Data Pipes** join Lua Boxes and machines into a network, see [Network and pipes](Network-and-pipes).
 - **Redstone Port**: Lua to vanilla redstone. A program powers pistons, doors and lamps, and reads levers,
   pressure plates and buttons. A port can look like any block, see [Redstone Port](Redstone-Port).
+- **Inventory Port**: Lua to chests, barrels, furnaces and modded storage such as Colossal Chests and Extended
+  Drawers. A program lists items and moves them from one inventory to another, see [Inventory Port](Inventory-Port).
 - **Signs** are machines too: a program can write on them, see the [Lua reference](Lua-reference).
 - **Other mods' machines** join the same network, for example the [Billboard Engine](https://github.com/Knito58/billboard)
   and the Typestones Typewriter. Mod authors: [For mod authors](For-mod-authors).
 
-None of the other mods is needed: a Lua Box, pipes, signs and redstone ports work on their own.
+None of the other mods is needed: a Lua Box, pipes, signs, redstone ports and inventory ports work on their own.
 
 ## Start here
 
 1. [Getting started](Getting-started): install, recipes, a first program.
 2. [Lua Box](Lua-Box) and [Network and pipes](Network-and-pipes).
-3. [Redstone Port](Redstone-Port), then the [Lua reference](Lua-reference).
+3. [Redstone Port](Redstone-Port) and [Inventory Port](Inventory-Port), then the [Lua reference](Lua-reference).
 
 ## Download
 

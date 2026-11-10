@@ -30,8 +30,9 @@ machine's name (and who placed it) on its block entity.
 ## Which program calls
 
 `args.caller()` is a `LuaCaller`: the same object for one run of one box, `isActive()` false after the program ends, is
-stopped or its box is broken, `describe()` for messages, and `file(name)` for the box's files (for a machine that shows
-an image the program names). Use it to let one program claim your machine: `claim()` returns `true`, or `false` plus
+stopped or its box is broken, `describe()` for messages, `file(name)` for the box's files (for a machine that shows
+an image the program names), and `client(name)` for another machine of the box's network by its name (since 0.3.0; for
+machines that work together, such as the Inventory Port moving items to a second one). Use it to let one program claim your machine: `claim()` returns `true`, or `false` plus
 `caller.describe()` of the holder, and the claim is dropped when `isActive()` turns false.
 
 Only the package `de.knito.billboard.api` is API; everything under `impl` may change in any release.

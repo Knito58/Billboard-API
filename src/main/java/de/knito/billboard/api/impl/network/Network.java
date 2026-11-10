@@ -28,6 +28,7 @@ import de.knito.billboard.api.impl.ApiConfig;
 import de.knito.billboard.api.impl.BillboardApiMod;
 import de.knito.billboard.api.impl.box.LuaBoxBlock;
 import de.knito.billboard.api.impl.pipe.DataPipeBlock;
+import de.knito.billboard.api.impl.port.InventoryPortBlock;
 import de.knito.billboard.api.impl.port.RedstonePortBlock;
 
 /**
@@ -138,7 +139,7 @@ public final class Network {
 					queue.addLast(next);
 					continue;
 				}
-				if (state.getBlock() instanceof RedstonePortBlock) {
+				if (state.getBlock() instanceof RedstonePortBlock || state.getBlock() instanceof InventoryPortBlock) {
 					// A port is a client and passes the network on, like a pipe that joins on every side.
 					visited.add(next);
 					queue.addLast(next);

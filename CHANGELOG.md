@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+New: **Inventory Port**, the bridge between Lua and inventories.
+
+- Craft it from a Data Pipe and a hopper. It looks like a pipe block and joins the network on all six sides, like the
+  Redstone Port.
+- A program lists a neighbouring inventory (`hasInventory`, `size`, `list`, `getItem`) and moves items between two
+  inventories with `move`, within one port or from one port to another, with an item or tag filter and a limit.
+- Works with everything that offers storage through Fabric's Transfer API: chests, barrels, furnaces and modded
+  storage such as Colossal Chests (interfaces) and Extended Drawers (drawers and access points).
+- Moving needs the claim of every port it goes through: `claim()`, `release()` and `isClaimed()` work as on the
+  other machines. Reading needs no claim.
+- New in the library for mod authors: `LuaCaller.client(name)` finds another machine of the box's network by name.
+
+
 New: see a machine's network name by looking at it, so two renamed ports side by side can be told apart.
 
 - Without any other mod, the name shows just below the crosshair. `name_hint=false` in `billboard_api.properties`

@@ -23,4 +23,16 @@ public interface LuaCaller {
 	 * of that name. Read-only by contract: the box's files belong to its owner.
 	 */
 	@Nullable Path file(String name);
+
+	/**
+	 * Another machine of the calling box's network by its name (compared without case), or null if there is none
+	 * or this box may not reach it. For clients that work together with a second machine, such as an inventory
+	 * port moving items to another one; the caller names it as a string. A caller that cannot look machines up
+	 * (tests) returns null.
+	 *
+	 * @since 0.3.0
+	 */
+	default @Nullable LuaClient client(String name) {
+		return null;
+	}
 }

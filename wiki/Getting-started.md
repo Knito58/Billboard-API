@@ -11,8 +11,9 @@
 | **Lua Box** | 4 iron ingots in the corners, 4 redstone in the sides, 1 paper in the middle | 1 |
 | **Data Pipe** | planks, paper, planks in a row | 8 |
 | **Redstone Port** | 1 Data Pipe and 1 redstone dust, in any order | 1 |
+| **Inventory Port** | 1 Data Pipe and 1 hopper, in any order | 1 |
 
-All three break fastest with an axe.
+All four break fastest with an axe.
 
 ![Lua Box recipe: iron ingots in the corners, redstone around the paper](images/08-recipe-lua-box.png)
 ![Data Pipe recipe: planks, paper, planks in a row gives 8](images/09-recipe-data-pipe.png)
