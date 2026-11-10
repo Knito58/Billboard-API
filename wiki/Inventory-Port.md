@@ -59,6 +59,34 @@ next to the side.
   is an error. Claims end by themselves when the program ends, as everywhere else.
 - Taking from and putting into the same inventory is an error, so a program cannot spin on one chest by mistake.
 
+## Example: move a stack of iron nuggets
+
+A chest on the west side of `inventory_port_1`, a drawer (or any other inventory) on the east side of `inventory_port_2`:
+
+```lua
+local from = network.findByName("inventory_port_1")
+local to   = network.findByName("inventory_port_2")
+if not from or not to then error("inventory ports not found, check network.list()") end
+
+-- claim both ports: moving needs the claim of every port it goes through
+for _, port in ipairs({ from, to }) do
+  local ok, who = port.claim()
+  if not ok then error(port.getName() .. " is claimed by " .. who) end
+end
+
+local ok, moved = pcall(from.move, "west", to.getName(), "east", "minecraft:iron_nugget", 64)
+if ok then
+  print("moved " .. moved .. " iron nuggets")   -- 0 if there were none or the target is full
+else
+  print("failed: " .. moved)                     -- here moved holds the error message
+end
+
+from.release(); to.release()
+```
+
+For a chest that should keep emptying, put the `pcall` line in a `while true do ... sleep(1) end` loop. Without a
+`limit`, one call moves 64.
+
 ## Good to know
 
 - The port never loads a chunk. An inventory in an unloaded chunk next to a port at the edge of a loaded one is an error
